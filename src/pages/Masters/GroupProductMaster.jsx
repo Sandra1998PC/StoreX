@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import "./GroupProductMaster.css";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { addProductGroupAPI, getProductGroupAPI } from "../../services/allAPIs";
+import { addProductGroupAPI, deleteProductGroupAPI, getProductGroupAPI, updateProductGroupAPI } from "../../services/allAPIs";
 
 const GroupProductMaster = () => {
     const [groups, setGroups] = useState([]);
@@ -13,20 +13,21 @@ const GroupProductMaster = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [editId, setEditId] = useState(null);
     const [userData, setUserData] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const fetchGroups = async () => {
-    try {
-        const response = await getProductGroupAPI();
-        const groupsData = response.data.data || [];
-        console.log("Fetched product groups:", groupsData);
+        try {
+            const response = await getProductGroupAPI();
+            const groupsData = response.data.data || [];
+            console.log("Fetched product groups:", groupsData);
 
-        setGroups(groupsData);
-        setGroupLength(groupsData.length);
+            setGroups(groupsData);
+            setGroupLength(groupsData.length);
 
-    } catch (error) {
-        toast.error("Failed to fetch product groups");
-    }
-};
+        } catch (error) {
+            toast.error("Failed to fetch product groups");
+        }
+    };
 
     useEffect(() => {
         const data = JSON.parse(sessionStorage.getItem("data"));
@@ -36,7 +37,15 @@ const GroupProductMaster = () => {
 
     // Generate the next group code
     const generateGroupCode = () => {
-        return "GP" + String(groupLength + 1).padStart(3, "0");
+        const existingCodes = groups.map(group => group.groupCode);
+
+        let nextNumber = 1;
+
+        while (existingCodes.includes(`GP${String(nextNumber).padStart(3, "0")}`)) {
+            nextNumber++;
+        }
+
+        return `GP${String(nextNumber).padStart(3, "0")}`;
     };
 
     const nextGroupCode = generateGroupCode();
@@ -56,7 +65,7 @@ const GroupProductMaster = () => {
         const duplicate = groups.some(
             (group) =>
                 group.groupName.toLowerCase() === trimmedName.toLowerCase() &&
-                group.id !== editId
+                group._id !== editId
         );
 
         if (duplicate) {
@@ -65,16 +74,15 @@ const GroupProductMaster = () => {
         }
 
         if (editId !== null) {
-            setGroups((prevGroups) =>
-                prevGroups.map((group) =>
-                    group.id === editId
-                        ? { ...group, groupName: trimmedName }
-                        : group
-                )
-            );
-
-            toast.success("Group updated successfully");
-            setEditId(null);
+            const updateGroupResponse = await updateProductGroupAPI({ groupName: trimmedName }, editId);
+            if (updateGroupResponse.status === 200) {
+                fetchGroups();
+                toast.success("Group updated successfully");
+                setEditId(null);
+            }
+            else {
+                toast.error("Failed to update group");
+            }
         } else {
             const newGroup = {
                 groupCode: nextGroupCode,
@@ -89,10 +97,10 @@ const GroupProductMaster = () => {
                 if (addedResponse.status === 201) {
                     fetchGroups();
                     toast.success("Group added successfully");
-                 }
-                } catch (error) {
-                    toast.error("Failed to add group");
                 }
+            } catch (error) {
+                toast.error("Failed to add group");
+            }
 
         }
 
@@ -102,26 +110,29 @@ const GroupProductMaster = () => {
     // Edit group
     const handleEdit = (group) => {
         setGroupName(group.groupName);
-        setEditId(group.id);
+        setEditId(group._id);
     };
 
     // Delete group
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         const confirmDelete = window.confirm(
             "Are you sure you want to delete this group?"
         );
 
         if (confirmDelete) {
-            setGroups((prevGroups) =>
-                prevGroups.filter((group) => group.id !== id)
-            );
+            const deleteGroupResponse = await deleteProductGroupAPI(id);
+            if (deleteGroupResponse.status === 200) {
+                fetchGroups();
+                if (editId === id) {
+                    setEditId(null);
+                    setGroupName("");
+                }
 
-            if (editId === id) {
-                setEditId(null);
-                setGroupName("");
+                toast.success("Group deleted successfully");
             }
-
-            toast.success("Group deleted successfully");
+            else {
+                toast.error("Failed to delete group");
+            }
         }
     };
 
@@ -132,11 +143,24 @@ const GroupProductMaster = () => {
     };
 
     // Search groups
-    const filteredGroups = groups.filter(
-        (group) =>
-            group.groupName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            group.groupCode.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredGroups = groups.filter((group) =>
+        group.groupName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        group.groupCode.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const recordsPerPage = 5;
+    const totalPages = Math.ceil(filteredGroups.length / recordsPerPage);
+    const indexOfLastRecord = currentPage * recordsPerPage;
+    const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+    const currentGroups = filteredGroups.slice(
+        indexOfFirstRecord,
+        indexOfLastRecord
+    );
+
+    const handleSearch = (value) => {
+        setSearchTerm(value);
+        setCurrentPage(1);
+    };
 
     return (
         <>
@@ -186,7 +210,7 @@ const GroupProductMaster = () => {
                                         className="form-control group-code-input"
                                         value={
                                             editId !== null
-                                                ? groups.find((group) => group.id === editId)?.groupCode || ""
+                                                ? groups.find((group) => group._id === editId)?.groupCode || ""
                                                 : nextGroupCode
                                         }
                                         readOnly
@@ -253,7 +277,7 @@ const GroupProductMaster = () => {
                                     type="text"
                                     placeholder="Search group..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => handleSearch(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -271,9 +295,9 @@ const GroupProductMaster = () => {
 
                                 <tbody>
                                     {filteredGroups.length > 0 ? (
-                                        filteredGroups.map((group, index) => (
-                                            <tr key={group.id}>
-                                                <td>{index + 1}</td>
+                                        currentGroups.map((group, index) => (
+                                            <tr key={group._id}>
+                                                <td>{indexOfFirstRecord + index + 1}</td>
 
                                                 <td>
                                                     <span className="group-code-badge">
@@ -299,7 +323,7 @@ const GroupProductMaster = () => {
                                                         <button
                                                             type="button"
                                                             className="group-delete-btn"
-                                                            onClick={() => handleDelete(group.id)}
+                                                            onClick={() => handleDelete(group._id)}
                                                             title="Delete"
                                                         >
                                                             <i className="bi bi-trash"></i>
@@ -326,7 +350,50 @@ const GroupProductMaster = () => {
                                         </tr>
                                     )}
                                 </tbody>
-                            </table>
+                            </table>{filteredGroups.length > 0 && (
+                                <div className="group-pagination">
+
+                                    <small className="pagination-info">
+                                        Showing {indexOfFirstRecord + 1} to{" "}
+                                        {Math.min(indexOfLastRecord, filteredGroups.length)} of{" "}
+                                        {filteredGroups.length} groups
+                                    </small>
+
+                                    <div className="pagination-buttons">
+
+                                        <button
+                                            type="button"
+                                            className="pagination-btn"
+                                            disabled={currentPage === 1}
+                                            onClick={() => setCurrentPage((prev) => prev - 1)}
+                                        >
+                                            <i className="bi bi-chevron-left"></i>
+                                        </button>
+
+                                        {Array.from({ length: totalPages }, (_, index) => (
+                                            <button
+                                                key={index + 1}
+                                                type="button"
+                                                className={`pagination-btn ${currentPage === index + 1 ? "active" : ""
+                                                    }`}
+                                                onClick={() => setCurrentPage(index + 1)}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        ))}
+
+                                        <button
+                                            type="button"
+                                            className="pagination-btn"
+                                            disabled={currentPage === totalPages}
+                                            onClick={() => setCurrentPage((prev) => prev + 1)}
+                                        >
+                                            <i className="bi bi-chevron-right"></i>
+                                        </button>
+
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                     </div>

@@ -21,3 +21,13 @@ export const addProductGroupAPI = async(reqBody) => {
 export const getProductGroupAPI = async() => {
     return await commonAPI("GET",'/master/get-all-product-groups')
 }
+
+// update product group
+export const updateProductGroupAPI = async(reqBody,id) => {
+    return await commonAPI("PUT",`/master/update-product-group/${id}`,reqBody)
+}
+
+// delete product group
+export const deleteProductGroupAPI = async(id) => {
+    return await commonAPI("DELETE",`/master/delete-product-group/${id}`)
+}
