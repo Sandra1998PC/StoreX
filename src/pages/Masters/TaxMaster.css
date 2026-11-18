@@ -1,0 +1,375 @@
+
+.tax-master-page {
+    padding: 25px;
+    background: #F6F8F6;
+    min-height: 100vh;
+    color: #26352B;
+}
+
+.tax-page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.tax-page-heading h3 {
+    color: #14532D;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.tax-page-heading p,
+.tax-card-heading p,
+.tax-table-header p {
+    color: #718075;
+    font-size: 13px;
+    margin-bottom: 0;
+}
+
+.tax-heading-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #E5EFE7;
+    color: #14532D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+}
+
+.tax-form-card,
+.tax-table-card {
+    background: #FFFFFF;
+    border: 1px solid #E1E9E2;
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(20, 83, 45, 0.04);
+}
+
+.tax-card-heading {
+    margin-bottom: 22px;
+}
+
+.tax-card-heading h5,
+.tax-table-header h5 {
+    color: #14532D;
+    font-weight: 650;
+    font-size: 17px;
+    margin-bottom: 5px;
+}
+
+.tax-master-page .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #34483A;
+    margin-bottom: 8px;
+}
+
+.tax-master-page .form-control {
+    height: 40px;
+    border: 1px solid #D8E2DA;
+    border-radius: 7px;
+    font-size: 13px;
+}
+
+.tax-master-page .form-control:focus {
+    border-color: #3F7653;
+    box-shadow: 0 0 0 3px rgba(63, 118, 83, 0.12);
+}
+
+.required-star {
+    color: #DC3545;
+}
+
+.tax-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding-top: 29px;
+}
+
+.tax-save-btn {
+    background: #14532D;
+    color: #FFFFFF;
+    height: 40px;
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 0 15px;
+    white-space: nowrap;
+}
+
+.tax-save-btn:hover {
+    background: #0B3D25;
+    color: #FFFFFF;
+}
+
+.tax-cancel-btn {
+    background: #E5EFE7;
+    color: #14532D;
+    height: 40px;
+    font-size: 13px;
+    border-radius: 7px;
+}
+
+.tax-cancel-btn:hover {
+    background: #D5E5D8;
+    color: #14532D;
+}
+
+.tax-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.tax-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border: 1px solid #D8E2DA;
+    border-radius: 7px;
+    padding: 0 12px;
+    width: 250px;
+    height: 38px;
+    color: #718075;
+}
+
+.tax-search input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    background: transparent;
+    color: #26352B;
+}
+
+.tax-table {
+    margin-bottom: 0;
+    font-size: 13px;
+}
+
+.tax-table thead th {
+    background: #F0F5F1;
+    color: #345640;
+    font-weight: 650;
+    padding: 13px 15px;
+    white-space: nowrap;
+    border-bottom: 1px solid #DCE7DE;
+}
+
+.tax-table tbody td {
+    padding: 13px 15px;
+    border-bottom: 1px solid #EDF1ED;
+    color: #435348;
+}
+
+.tax-table tbody tr:hover {
+    background: #F8FBF8;
+}
+
+.tax-id-badge {
+    display: inline-block;
+    background: #E5EFE7;
+    color: #14532D;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.tax-name-cell {
+    font-weight: 550;
+    color: #26352B !important;
+}
+
+.tax-rate-badge {
+    color: #14532D;
+    background: #F0F5F1;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+.tax-action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tax-edit-btn ,
+.tax-delete-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: #E5EFE7;
+    color: #14532D;
+    cursor: pointer;
+}
+
+.tax-edit-btn:hover {
+    background: #14532D;
+    color: #FFFFFF;
+}
+
+.tax-delete-btn {
+  background: #FCEAEA;
+  color: #DC3545;
+}
+
+.tax-delete-btn:hover {
+  background: #DC3545;
+  color: #FFFFFF;
+}
+
+.tax-empty-state {
+    text-align: center;
+    padding: 45px 15px !important;
+}
+
+.tax-empty-state i {
+    font-size: 32px;
+    color: #9BB3A0;
+}
+
+.tax-empty-state p {
+    color: #435348;
+    font-weight: 600;
+    margin: 8px 0 3px;
+}
+
+.tax-empty-state small {
+    color: #89978C;
+}
+
+@media (max-width: 767px) {
+    .tax-master-page {
+        padding: 15px;
+    }
+
+    .tax-form-card,
+    .tax-table-card {
+        padding: 16px;
+    }
+
+    .tax-form-actions {
+        padding-top: 0;
+    }
+
+    .tax-table-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .tax-search {
+        width: 100%;
+    }
+}
+
+.group-code-input {
+  background: #F1F6F2 !important;
+  color: #14532D !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.product-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.pagination-buttons button {
+  min-width: 36px;
+  height: 36px;
+  padding: 5px 10px;
+  border: 1px solid #dce7de;
+  border-radius: 6px;
+  background: #fff;
+  color: #14532d;
+  cursor: pointer;
+}
+
+.pagination-buttons button:hover:not(:disabled) {
+  background: #e5efe7;
+}
+
+.pagination-buttons button.active {
+  background: #14532d;
+  color: white;
+  border-color: #14532d;
+}
+
+.pagination-buttons button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Pagination container */
+.tax-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.tax-pagination-info {
+  font-size: 14px;
+  color: #526456;
+}
+
+/* Pagination buttons */
+.tax-pagination-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.tax-pagination-buttons button {
+  min-width: 36px;
+  height: 36px;
+  padding: 5px 10px;
+  border: 1px solid #dce7de;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #14532d;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.tax-pagination-buttons button:hover:not(:disabled) {
+  background: #e5efe7;
+}
+
+.tax-pagination-buttons button.active {
+  background: #14532d;
+  color: #ffffff;
+  border-color: #14532d;
+}
+
+.tax-pagination-buttons button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .tax-pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

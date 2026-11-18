@@ -5,6 +5,7 @@ import "./GroupProductMaster.css";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { addProductGroupAPI, deleteProductGroupAPI, getProductGroupAPI, updateProductGroupAPI } from "../../services/allAPIs";
+import Swal from "sweetalert2";
 
 const GroupProductMaster = () => {
     const [groups, setGroups] = useState([]);
@@ -37,15 +38,12 @@ const GroupProductMaster = () => {
 
     // Generate the next group code
     const generateGroupCode = () => {
-        const existingCodes = groups.map(group => group.groupCode);
+        const highestgroupId = groups.reduce((max, group) => {
+            const number = parseInt(group.groupCode.replace("GP", ""), 10);
+            return Math.max(max, number);
+        }, 0);
 
-        let nextNumber = 1;
-
-        while (existingCodes.includes(`GP${String(nextNumber).padStart(3, "0")}`)) {
-            nextNumber++;
-        }
-
-        return `GP${String(nextNumber).padStart(3, "0")}`;
+        return `GP${String(highestgroupId + 1).padStart(3, "0")}`;
     };
 
     const nextGroupCode = generateGroupCode();
@@ -115,11 +113,18 @@ const GroupProductMaster = () => {
 
     // Delete group
     const handleDelete = async (id) => {
-        const confirmDelete = window.confirm(
-            "Are you sure you want to delete this group?"
-        );
+        const confirmDelete = await Swal.fire({
+            title: "Are you sure?",
+            text: "You want to delete this group?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#14532D",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+        });
 
-        if (confirmDelete) {
+        if (confirmDelete.isConfirmed) {
             const deleteGroupResponse = await deleteProductGroupAPI(id);
             if (deleteGroupResponse.status === 200) {
                 fetchGroups();
