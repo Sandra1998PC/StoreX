@@ -243,7 +243,7 @@ const GroupProductMaster = () => {
                                 {/* Form Actions */}
                                 <div className="col-md-3 mb-3">
                                     <div className="group-form-actions d-flex gap-2">
-                                        <button type="submit" className="btn group-save-btn">
+                                        <button type="submit" className={`btn ${editId !== null ? "btn-warning" : "btn-success"}`}>
                                             <i
                                                 className={`bi ${editId !== null ? "bi-check-lg" : "bi-plus-lg"
                                                     } me-2`}
@@ -254,7 +254,7 @@ const GroupProductMaster = () => {
                                         {editId !== null && (
                                             <button
                                                 type="button"
-                                                className="btn group-cancel-btn"
+                                                className="btn btn-danger"
                                                 onClick={handleCancel}
                                             >
                                                 Cancel
@@ -325,14 +325,14 @@ const GroupProductMaster = () => {
                                                             <i className="bi bi-pencil-square"></i>
                                                         </button>
 
-                                                        <button
+                                                        {/* <button
                                                             type="button"
                                                             className="group-delete-btn"
                                                             onClick={() => handleDelete(group._id)}
                                                             title="Delete"
                                                         >
                                                             <i className="bi bi-trash"></i>
-                                                        </button>
+                                                        </button> */}
                                                     </div>
                                                 </td>
                                             </tr>

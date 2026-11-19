@@ -761,7 +761,7 @@ const Sales = () => {
           <div className="sales-form-actions">
             <button
               type="button"
-              className="btn btn-sales-save"
+              className={`btn ${editInvoiceId !== null ? "btn-warning" : "btn-success"}`}
               onClick={handleSubmit}
             >
               <i className="bi bi-floppy me-2"></i>
@@ -770,7 +770,7 @@ const Sales = () => {
 
             <button
               type="button"
-              className="btn btn-sales-cancel"
+              className="btn btn-danger"
               onClick={handleReset}
             >
               <i className="bi bi-arrow-counterclockwise me-2"></i>

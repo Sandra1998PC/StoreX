@@ -559,7 +559,7 @@ const ProductMaster = () => {
               {!editId && (
                 <button
                   type="submit"
-                  className="btn btn-product-save"
+                  className="btn btn-success"
                 >
                   <i className="bi bi-floppy me-2"></i>
                   Save Product
@@ -569,7 +569,7 @@ const ProductMaster = () => {
               {editId && (
                 <button
                   type="submit"
-                  className="btn btn-product-update"
+                  className="btn btn-warning"
                 >
                   <i className="bi bi-pencil-square me-2"></i>
                   Update Product
@@ -578,7 +578,7 @@ const ProductMaster = () => {
 
               <button
                 type="button"
-                className="btn btn-product-cancel"
+                className="btn btn-danger"
                 onClick={handleCancel}
               >
                 <i className="bi bi-arrow-counterclockwise me-2"></i>
@@ -699,7 +699,7 @@ const ProductMaster = () => {
                             <i className="bi bi-pencil-square"></i>
                           </button>
 
-                          <button
+                          {/* <button
                             className="btn btn-delete-product"
                             title="Delete"
                             onClick={() =>
@@ -707,7 +707,7 @@ const ProductMaster = () => {
                             }
                           >
                             <i className="bi bi-trash"></i>
-                          </button>
+                          </button> */}
 
                         </div>
                       </td>

@@ -257,7 +257,7 @@ const TaxMaster = () => {
 
               <div className="col-md-2 mb-3">
                 <div className="tax-form-actions">
-                  <button type="submit" className="btn tax-save-btn">
+                  <button type="submit"className={`btn ${editId !== null ? "btn-warning" : "btn-success"}`}>
                     <i className={`bi ${editId !== null
                       ? "bi-check-lg"
                       : "bi-plus-lg"
@@ -268,7 +268,7 @@ const TaxMaster = () => {
                   {editId !== null && (
                     <button
                       type="button"
-                      className="btn tax-cancel-btn"
+                      className="btn btn-danger"
                       onClick={handleCancel}
                     >
                       Cancel
@@ -346,14 +346,14 @@ const TaxMaster = () => {
                             <i className="bi bi-pencil-square"></i>
                           </button>
 
-                          <button
+                          {/* <button
                             type="button"
                             className="tax-delete-btn"
                             onClick={() => handleDelete(tax._id)}
                             title="Delete"
                           >
                             <i className="bi bi-trash"></i>
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>
