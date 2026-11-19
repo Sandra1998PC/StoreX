@@ -1,1 +1,1 @@
-export const serverURL = "http://localhost:3000"
+export const serverURL = "https://storex-backend-2.onrender.com"
