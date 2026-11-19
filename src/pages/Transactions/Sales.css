@@ -1,0 +1,321 @@
+
+.sales-container {
+  background: #f6f8f6;
+  min-height: 100vh;
+  padding: 30px 5%;
+  color: #26352b;
+}
+
+.sales-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.sales-header h2 {
+  color: #14532d;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.sales-header p {
+  color: #718078;
+  margin: 0;
+}
+
+.sales-card {
+  background: #fff;
+  border: 1px solid #e2eae3;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 3px 12px rgba(20, 83, 45, 0.04);
+}
+
+.sales-section-title {
+  color: #14532d;
+  font-weight: 600;
+  margin-bottom: 22px;
+}
+
+.sales-card .form-label {
+  color: #34483a;
+  font-weight: 500;
+}
+
+.sales-card .form-control,
+.sales-card .form-select {
+  min-height: 42px;
+  border: 1px solid #d8e2d9;
+  border-radius: 8px;
+}
+
+.sales-card .form-control:focus,
+.sales-card .form-select:focus {
+  border-color: #3f7653;
+  box-shadow: 0 0 0 0.2rem rgba(20, 83, 45, 0.12);
+}
+
+.btn-sales-search,
+.btn-sales-add,
+.btn-sales-save {
+  background: #14532d;
+  color: #fff;
+  border: none;
+}
+
+.btn-sales-search:hover,
+.btn-sales-add:hover,
+.btn-sales-save:hover {
+  background: #0b3d25;
+  color: #fff;
+}
+
+.btn-sales-add {
+  min-height: 42px;
+}
+
+.sales-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.sales-item-count {
+  background: #e5efe7;
+  color: #14532d;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sales-table {
+  min-width: 850px;
+  vertical-align: middle;
+}
+
+.sales-table thead th {
+  background: #14532d;
+  color: #fff;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 13px;
+}
+
+.sales-table tbody td {
+  padding: 12px;
+  border-color: #edf1ed;
+}
+
+.sales-table tbody tr:hover {
+  background: #f8fbf8;
+}
+
+.sales-qty-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sales-qty-control button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #cbd9cd;
+  background: #e5efe7;
+  color: #14532d;
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+.sales-qty-control button:hover {
+  background: #14532d;
+  color: #fff;
+}
+
+.sales-qty-control input {
+  width: 55px;
+  text-align: center;
+  border: 1px solid #d8e2d9;
+  border-radius: 6px;
+  height: 32px;
+}
+
+.sales-rate-input {
+  width: 90px;
+  padding: 5px 8px;
+  border: 1px solid #d8e2d9;
+  border-radius: 6px;
+}
+
+.sales-amount {
+  font-weight: 600;
+  color: #14532d;
+  white-space: nowrap;
+}
+
+.btn-sales-delete {
+  color: #dc3545;
+  border: 1px solid #f0c8cc;
+  background: #fff;
+}
+
+.btn-sales-delete:hover {
+  color: #fff;
+  background: #dc3545;
+}
+
+.btn-sales-edit {
+  background: #e5efe7;
+  color: #14532d;
+  border: 1px solid #d0dfd2;
+}
+
+.btn-sales-edit:hover {
+  background: #14532d;
+  color: #fff;
+}
+
+.sales-empty {
+  text-align: center;
+  padding: 40px !important;
+  color: #8a978d;
+}
+
+.sales-empty i {
+  font-size: 35px;
+  color: #9caf9e;
+}
+
+.sales-empty p {
+  margin-top: 10px;
+}
+
+.sales-summary {
+  margin-left: auto;
+  max-width: 360px;
+  background: #f6f8f6;
+  border: 1px solid #e2eae3;
+  padding: 18px;
+  border-radius: 12px;
+}
+
+.sales-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sales-summary-row span {
+  color: #718078;
+}
+
+.sales-summary-row strong {
+  color: #26352b;
+}
+
+.sales-grand-total {
+  border-top: 1px solid #d8e2d9;
+  padding-top: 14px;
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sales-grand-total span {
+  color: #14532d;
+  font-weight: 600;
+}
+
+.sales-grand-total strong {
+  font-size: 24px;
+  color: #14532d;
+  font-weight: 700;
+}
+
+.sales-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-sales-save,
+.btn-sales-cancel {
+  padding: 10px 24px;
+  border-radius: 8px;
+}
+
+.btn-sales-cancel {
+  background: #e9ecef;
+  color: #495057;
+  border: none;
+}
+
+.btn-sales-cancel:hover {
+  background: #dce0e3;
+}
+
+@media (max-width: 768px) {
+  .sales-container {
+    padding: 20px 3%;
+  }
+
+  .sales-card {
+    padding: 16px;
+  }
+
+  .sales-form-actions {
+    flex-direction: column;
+  }
+
+  .sales-form-actions button {
+    width: 100%;
+  }
+
+  .sales-summary {
+    max-width: 100%;
+  }
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.pagination-btn {
+  padding: 7px 13px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.pagination-btn.active {
+  background: #14532d;
+  color: white;
+  border-color: #14532d;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.read-only-input {
+  background: #F1F6F2 !important;
+  color: #14532D !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}

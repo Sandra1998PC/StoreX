@@ -71,3 +71,27 @@ export const updateProductAPI = async(reqBody,id) => {
 export const deleteProductAPI = async(id) => {
     return await commonAPI("DELETE",`/master/delete-product/${id}`)
 }
+
+// add Sales
+export const addSalesAPI = async (reqBody) => {
+    return await commonAPI("POST",'/transactions/add-sales',reqBody)
+}
+
+// Get Sales by Invoice Number
+export const getSalesByInvoiceNumberAPI = async (invoiceNumber) => {
+    return await commonAPI("GET",`/transactions/get-sales/${invoiceNumber}`, "");
+};
+
+export const getAllSalesAPI = async () => {
+    return await commonAPI("GET","/transactions/get-all-sales","");
+};
+
+// Get distinct invoice numbers
+export const getDistinctInvoiceNumbersAPI = async () => {
+    return await commonAPI("GET","/transactions/get-invoice-numbers","");
+};
+
+// Update Sales Invoice
+export const updateSalesAPI = async (id, reqBody) => {
+    return await commonAPI("PUT",`/transactions/update-sales/${id}`,reqBody);
+};

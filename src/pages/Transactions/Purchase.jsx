@@ -1,10 +1,16 @@
 import React from 'react'
+import Navbar from '../../components/Navbar'
+import Footer from '../../components/Footer'
 
 function Purchase() {
   return (
-    <div>
-      <h1>Purchase</h1>
-    </div>
+    <>
+      <Navbar />
+      <div>
+        <h1>Purchase</h1>
+      </div>
+      <Footer />
+    </>
   )
 }
 

@@ -1,10 +1,16 @@
 import React from 'react'
+import Navbar from '../../../../components/Navbar'
+import Footer from '../../../../components/Footer'
 
 function SalesStatement() {
   return (
-    <div>
-      <h1>Sales Statement</h1>
-    </div>
+    <>
+    <Navbar/>
+      <div>
+        <h1>Sales Statement</h1>
+      </div>
+      <Footer/>
+    </>
   )
 }
 

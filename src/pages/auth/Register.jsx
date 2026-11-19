@@ -85,9 +85,9 @@ const Register = () => {
         }
 
         // Terms Validation
-        if (!acceptTerms) {
-            error.terms = "Please accept the Terms and Conditions";
-        }
+        // if (!acceptTerms) {
+        //     error.terms = "Please accept the Terms and Conditions";
+        // }
 
         setErrors(error);
 
@@ -281,7 +281,7 @@ const Register = () => {
                             </div>
 
                             {/* Terms and Conditions */}
-                            <div className="form-check mb-4">
+                            {/* <div className="form-check mb-4">
                                 <input
                                     type="checkbox"
                                     className={`form-check-input ${errors.terms ? "is-invalid" : ""}`}
@@ -304,7 +304,7 @@ const Register = () => {
                                         {errors.terms}
                                     </small>
                                 )}
-                            </div>
+                            </div> */}
 
                             {/* Submit Button */}
                             <button type="submit" className="btn register-btn w-100">
