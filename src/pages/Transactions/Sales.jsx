@@ -288,6 +288,11 @@ const Sales = () => {
       return;
     }
 
+     if (customerName === "") {
+      toast.error("Please add Customer Name");
+      return;
+    }
+
     if (editInvoiceId) {
       handleUpdateSales()
     }
@@ -606,7 +611,7 @@ const Sales = () => {
             <div className="col-md-2">
               <button
                 type="button"
-                className="btn btn-sales-add w-100"
+                className="btn btn-success"
                 onClick={handleAddItem}
               >
                 <i className="bi bi-plus-lg me-2"></i>
