@@ -319,3 +319,28 @@
   font-weight: 700;
   letter-spacing: 0.5px;
 }
+
+.product-select-btn {
+  min-height: 120px;
+  border-radius: 10px;
+  padding: 15px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  white-space: normal;
+}
+
+.product-select-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.product-select-btn strong {
+  font-size: 14px;
+}
+
+.product-select-btn small {
+  font-size: 13px;
+}

@@ -26,6 +26,11 @@ const Sales = () => {
   const [customerName, setCustomerName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const invoicesPerPage = 5;
+  const [productSearch, setProductSearch] = useState("");
+  const [showProductResults, setShowProductResults] = useState(false);
+  const [salesRate, setSalesRate] = useState("");
+  const [invoiceSearch, setInvoiceSearch] = useState("");
+  const [showInvoiceResults, setShowInvoiceResults] = useState(false);
 
   const getInvoiceNumbers = async () => {
     try {
@@ -151,7 +156,7 @@ const Sales = () => {
           productName: product.productName,
           unit: product.unit,
           quantity: Number(quantity),
-          rate: Number(product.salesRate),
+          rate: Number(salesRate),
           amount: Number(quantity) * Number(product.salesRate),
         },
       ]);
@@ -159,6 +164,9 @@ const Sales = () => {
 
     setSelectedProduct("");
     setQuantity(1);
+    setProductSearch("")
+    setShowProductResults(false)
+    setSalesRate("")
   };
 
   // Increase quantity
@@ -288,10 +296,10 @@ const Sales = () => {
       return;
     }
 
-     if (customerName === "") {
-      toast.error("Please add Customer Name");
-      return;
-    }
+    // if (customerName === "") {
+    //   toast.error("Please add Customer Name");
+    //   return;
+    // }
 
     if (editInvoiceId) {
       handleUpdateSales()
@@ -341,6 +349,11 @@ const Sales = () => {
     setEditInvoiceId(null);
     setSearchInvoiceNo("");
     setCustomerName("")
+    setSalesRate("")
+    setProductSearch("")
+    setShowProductResults(false)
+    setInvoiceSearch("")
+    showInvoiceResults(false)
   };
 
   // Delete item confirmation
@@ -455,6 +468,51 @@ const Sales = () => {
 
   const totalPages = Math.ceil(invoices.length / invoicesPerPage);
 
+  const filteredProducts = products.filter((product) =>
+    `${product.productCode} ${product.productName}`
+      .toLowerCase()
+      .includes(productSearch.toLowerCase())
+  );
+
+  const formattedInvoiceDate = invoiceDate
+    ? new Date(invoiceDate).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).replace(/ /g, "/")
+    : "";
+
+  const filteredInvoices = invoiceNumbers.filter((number) =>
+    number.toLowerCase().includes(invoiceSearch.toLowerCase())
+  );
+
+  const handleAddProduct = (product) => {
+
+  const existingItem = items.find(
+    (item) => item.productId === product._id
+  );
+
+  if (existingItem) {
+
+    increaseQuantity(product._id);
+
+  } else {
+
+    const newItem = {
+      productId: product._id,
+      productName: product.productName,
+      productCode: product.productCode,
+      unit: product.unit,
+      quantity: 1,
+      rate: Number(product.salesRate),
+      amount: Number(product.salesRate),
+    };
+
+    setItems((prevItems) => [...prevItems, newItem]);
+
+  }
+};
+
   return (
     <>
       <Navbar />
@@ -481,7 +539,7 @@ const Sales = () => {
 
           <div className="row g-3">
 
-            <div className="col-md-4">
+            {/* <div className="col-md-4">
               <label className="form-label">Invoice Number</label>
               <input
                 type="text"
@@ -489,15 +547,73 @@ const Sales = () => {
                 value={invoiceNo}
                 readOnly
               />
+            </div> */}
+
+            <div className="col-md-2">
+              <label className="form-label">Edit Existing Invoice</label>
+
+              <div className="input-group">
+
+                <div className="position-relative">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search Invoice..."
+                    value={invoiceSearch}
+                    onChange={(e) => {
+                      setInvoiceSearch(e.target.value);
+                      setShowInvoiceResults(true);
+                      setSearchInvoiceNo("");
+                    }}
+                    onFocus={() => setShowInvoiceResults(true)}
+                  />
+
+                  {showInvoiceResults && invoiceSearch.trim() !== "" && (
+                    <ul
+                      className="list-group position-absolute w-100"
+                      style={{
+                        zIndex: 1000,
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                      }}
+                    >
+                      {filteredInvoices.length > 0 ? (
+                        filteredInvoices.map((number) => (
+                          <li
+                            key={number}
+                            className="list-group-item list-group-item-action"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => {
+                              setSearchInvoiceNo(number);
+                              setInvoiceSearch(number);
+                              setShowInvoiceResults(false);
+
+                              // Execute your existing edit dropdown logic
+                              handleEditDropdown({
+                                target: { value: number },
+                              });
+                            }}
+                          >
+                            {number}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="list-group-item text-muted">
+                          No invoices found
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="col-md-4">
               <label className="form-label">Invoice Date</label>
               <input
-                type="date"
+                type="text"
                 className="form-control read-only-input"
-                value={invoiceDate}
-                // onChange={(e) => setInvoiceDate(e.target.value)}
+                value={formattedInvoiceDate}
                 readOnly
               />
             </div>
@@ -510,47 +626,6 @@ const Sales = () => {
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
               />
-            </div>
-
-            <div className="col-md-4">
-              <label className="form-label">Edit Existing Invoice</label>
-
-              <div className="input-group">
-                {/* <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Enter invoice number"
-                  value={searchInvoiceNo}
-                  onChange={(e) =>
-                    onSelectInvoice(e)
-                  }
-                />
-
-                <button
-                  type="button"
-                  className="btn btn-sales-search"
-                  onClick={handleLoadInvoice}
-                >
-                  <i className="bi bi-search me-1"></i>
-                  Load
-                </button> */}
-
-                <select
-                  className="form-select"
-                  value={searchInvoiceNo}
-                  onChange={(e) => {
-                    handleEditDropdown(e)
-                  }}
-                >
-                  <option value="">Select Invoice</option>
-
-                  {invoiceNumbers.map((number) => (
-                    <option key={number} value={number}>
-                      {number}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
 
           </div>
@@ -568,19 +643,53 @@ const Sales = () => {
             <div className="col-md-5">
               <label className="form-label">Select Product</label>
 
-              <select
-                className="form-select"
-                value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
-              >
-                <option value="">Select Product</option>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search Product..."
+                value={productSearch}
+                onChange={(e) => {
+                  setProductSearch(e.target.value);
+                  setShowProductResults(true);
+                  setSelectedProduct("");
+                }}
+                onFocus={() => setShowProductResults(true)}
+              />
 
-                {products.map((product) => (
-                  <option key={product._id} value={product._id}>
-                    {product.productCode} - {product.productName}
-                  </option>
-                ))}
-              </select>
+              {showProductResults && productSearch.trim() !== "" && (
+                <ul
+                  className="list-group position-absolute w-100"
+                  style={{
+                    zIndex: 1000,
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                  }}
+                >
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map((product) => (
+                      <li
+                        key={product._id}
+                        className="list-group-item list-group-item-action"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          setSelectedProduct(product._id);
+                          setProductSearch(
+                            `${product.productCode} - ${product.productName}`
+                          );
+                          setSalesRate(product.salesRate);
+                          setShowProductResults(false);
+                        }}
+                      >
+                        {product.productCode} - {product.productName}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="list-group-item text-muted">
+                      No products found
+                    </li>
+                  )}
+                </ul>
+              )}
             </div>
 
             <div className="col-md-3">
@@ -588,9 +697,9 @@ const Sales = () => {
 
               <input
                 type="number"
-                className="form-control read-only-input"
-                value={selectedProductData?.salesRate || ""}
-                readOnly
+                className="form-control"
+                value={salesRate}
+                onChange={(e) => setSalesRate(e.target.value)}
               />
             </div>
 
@@ -635,157 +744,190 @@ const Sales = () => {
             </span>
           </div>
 
-          <div className="table-responsive">
-            <table className="table sales-table">
-              <thead>
-                <tr>
-                  <th>Sl. No.</th>
-                  <th>Product</th>
-                  <th>Unit</th>
-                  <th>Quantity</th>
-                  <th>Rate (₹)</th>
-                  <th>Amount (₹)</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {items.length > 0 ? (
-                  items.map((item, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-
-                      <td>
-                        <strong>{item.productName}</strong>
-                        <small className="d-block text-muted">
-                          {item.productCode}
-                        </small>
-                      </td>
-
-                      <td>{item.unit}</td>
-
-                      <td>
-                        <div className="sales-qty-control">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              decreaseQuantity(item.productId)
-                            }
-                          >
-                            −
-                          </button>
-
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              handleQuantityChange(
-                                item.productId,
-                                e.target.value
-                              )
-                            }
-                          />
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              increaseQuantity(item.productId)
-                            }
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-
-                      <td>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          className="sales-rate-input"
-                          value={item.rate}
-                          onChange={(e) =>
-                            handleRateChange(
-                              item.productId,
-                              e.target.value
-                            )
-                          }
-                        />
-                      </td>
-
-                      <td className="sales-amount">
-                        ₹{item.amount.toFixed(2)}
-                      </td>
-
-                      <td>
-                        <button
-                          type="button"
-                          className="btn btn-sales-delete"
-                          onClick={() =>
-                            handleDeleteItem(item.productId)
-                          }
-                          title="Remove item"
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </td>
+          <div className="row">
+            <div className="col-md-6">
+              <div className="table-responsive">
+                <table className="table sales-table border rounded">
+                  <thead>
+                    <tr>
+                      <th>Sl. No.</th>
+                      <th>Product</th>
+                      <th>Unit</th>
+                      <th>Quantity</th>
+                      <th>Rate (₹)</th>
+                      <th>Amount (₹)</th>
+                      <th>Action</th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="sales-empty">
-                      <i className="bi bi-cart3"></i>
-                      <p>No products added to this invoice</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
 
-          {/* Invoice Summary */}
-          <div className="sales-summary">
-            <div className="sales-summary-row">
-              <span>Total Items</span>
-              <strong>{items.length}</strong>
+                  <tbody>
+                    {items.length > 0 ? (
+                      items.map((item, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+
+                          <td>
+                            <strong>{item.productName}</strong>
+                            <small className="d-block text-muted">
+                              {item.productCode}
+                            </small>
+                          </td>
+
+                          <td>{item.unit}</td>
+
+                          <td>
+                            <div className="sales-qty-control">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  decreaseQuantity(item.productId)
+                                }
+                              >
+                                −
+                              </button>
+
+                              <input
+                                type="number"
+                                min="1"
+                                value={item.quantity}
+                                onChange={(e) =>
+                                  handleQuantityChange(
+                                    item.productId,
+                                    e.target.value
+                                  )
+                                }
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  increaseQuantity(item.productId)
+                                }
+                              >
+                                +
+                              </button>
+                            </div>
+                          </td>
+
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              className="sales-rate-input"
+                              value={item.rate}
+                              onChange={(e) =>
+                                handleRateChange(
+                                  item.productId,
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+
+                          <td className="sales-amount">
+                            ₹{item.amount.toFixed(2)}
+                          </td>
+
+                          <td>
+                            <button
+                              type="button"
+                              className="btn btn-sales-delete"
+                              onClick={() =>
+                                handleDeleteItem(item.productId)
+                              }
+                              title="Remove item"
+                            >
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="sales-empty">
+                          <i className="bi bi-cart3"></i>
+                          <p>No products added to this invoice</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                {/* Invoice Summary */}
+                <div className="sales-summary">
+                  <div className="sales-summary-row">
+                    <span>Total Items</span>
+                    <strong>{items.length}</strong>
+                  </div>
+
+                  <div className="sales-summary-row">
+                    <span>Total Quantity</span>
+                    <strong>{totalQuantity}</strong>
+                  </div>
+
+                  <div className="sales-grand-total">
+                    <span>Grand Total</span>
+                    <strong>₹{grandTotal.toFixed(2)}</strong>
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="sales-form-actions">
+                  <button
+                    type="button"
+                    className={`btn ${editInvoiceId !== null ? "btn-warning" : "btn-success"}`}
+                    onClick={handleSubmit}
+                  >
+                    <i className="bi bi-floppy me-2"></i>
+                    {editInvoiceId ? "Update Invoice" : "Add Invoice"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleReset}
+                  >
+                    <i className="bi bi-arrow-counterclockwise me-2"></i>
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div className="sales-summary-row">
-              <span>Total Quantity</span>
-              <strong>{totalQuantity}</strong>
+
+            <div className="col-md-6">
+              <div className="sales-card p-3">
+
+                <h5 className="sales-section-title mb-3">
+                  <i className="bi bi-grid me-2"></i>
+                  Select Products
+                </h5>
+                <div className="row g-3">
+                  {products.map((product) => (
+                    <div className="col-6 col-md-4" key={product._id}>
+                      <button
+                        type="button"
+                        className="btn btn-outline-success w-100 product-select-btn"
+                        onClick={() => handleAddProduct(product)}
+                      >
+                        <i className="bi bi-box-seam fs-4 d-block mb-2"></i>
+                        <strong>{product.productName}</strong>
+                        <small className="d-block mt-1">
+                          ₹{Number(product.salesRate).toFixed(2)}
+                        </small>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-
-            <div className="sales-grand-total">
-              <span>Grand Total</span>
-              <strong>₹{grandTotal.toFixed(2)}</strong>
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="sales-form-actions">
-            <button
-              type="button"
-              className={`btn ${editInvoiceId !== null ? "btn-warning" : "btn-success"}`}
-              onClick={handleSubmit}
-            >
-              <i className="bi bi-floppy me-2"></i>
-              {editInvoiceId ? "Update Invoice" : "Add Invoice"}
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={handleReset}
-            >
-              <i className="bi bi-arrow-counterclockwise me-2"></i>
-              Cancel
-            </button>
           </div>
         </div>
 
         {/* Saved Invoice List */}
-        <div className="sales-card">
+        {/* <div className="sales-card">
           <h5 className="sales-section-title">
             <i className="bi bi-journal-text me-2"></i>
             Saved Invoices
@@ -800,7 +942,6 @@ const Sales = () => {
                   <th>Items</th>
                   <th>Total Qty</th>
                   <th>Total Amount</th>
-                  {/* <th>Action</th> */}
                 </tr>
               </thead>
 
@@ -861,7 +1002,7 @@ const Sales = () => {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
 
       </div>
 

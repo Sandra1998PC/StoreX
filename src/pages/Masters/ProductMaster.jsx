@@ -33,6 +33,10 @@ const ProductMaster = () => {
 
   const recordsPerPage = 5;
   const [userData, setUserData] = useState(null);
+  const [groupSearch, setGroupSearch] = useState("");
+  const [showGroupResults, setShowGroupResults] = useState(false);
+  const [taxSearch, setTaxSearch] = useState("");
+  const [showTaxResults, setShowTaxResults] = useState(false);
 
   const getAllProducts = async () => {
     try {
@@ -202,10 +206,10 @@ const ProductMaster = () => {
     // -----------------------------
     if (editId) {
       try {
-        const { productName, productCode, groupId,groupName, taxId, taxName, unit, salesRate, purchaseRate } = productData;
+        const { productName, productCode, groupId, groupName, taxId, taxName, unit, salesRate, purchaseRate } = productData;
         const updatedResponse = await updateProductAPI(
           {
-            productName, productCode, groupId,groupName, taxId, taxName, unit, salesRate, purchaseRate,
+            productName, productCode, groupId, groupName, taxId, taxName, unit, salesRate, purchaseRate,
             addedBy: userData?.existingUser._id, addedByName: userData?.existingUser.name
           },
           editId
@@ -236,9 +240,9 @@ const ProductMaster = () => {
       try {
 
         console.log(" productData", productData);
-        const { productName, productCode, groupId,groupName, taxId, taxName, unit, salesRate, purchaseRate } = productData;
+        const { productName, productCode, groupId, groupName, taxId, taxName, unit, salesRate, purchaseRate } = productData;
         const addedResponse = await addProductAPI({
-          productName, productCode, groupId,groupName, taxId,taxName, unit, salesRate, purchaseRate,
+          productName, productCode, groupId, groupName, taxId, taxName, unit, salesRate, purchaseRate,
           addedBy: userData?.existingUser._id, addedByName: userData?.existingUser.name
         });
 
@@ -365,6 +369,19 @@ const ProductMaster = () => {
     setSearchTerm(value);
     setCurrentPage(1);
   };
+
+  const filteredGroups = groups.filter((group) =>
+    group.groupName
+      .toLowerCase()
+      .includes(groupSearch.toLowerCase())
+  );
+
+  const filteredTaxes = taxes.filter((tax) =>
+    `${tax.taxName} ${tax.taxRate}%`
+      .toLowerCase()
+      .includes(taxSearch.toLowerCase())
+  );
+
   // -----------------------------
   // Render
   // -----------------------------
@@ -437,22 +454,50 @@ const ProductMaster = () => {
                   Product Group <span className="required">*</span>
                 </label>
 
-                <select
-                  className="form-select"
-                  value={groupId}
-                  onChange={(e) => setGroupId(e.target.value)}
-                >
-                  <option value="">Select Group</option>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search Group..."
+                  value={groupSearch}
+                  onChange={(e) => {
+                    setGroupSearch(e.target.value);
+                    setShowGroupResults(true);
+                    setGroupId("");
+                  }}
+                  onFocus={() => setShowGroupResults(true)}
+                />
 
-                  {groups.map((group) => (
-                    <option
-                      key={group._id}
-                      value={group._id}
-                    >
-                      {group.groupName}
-                    </option>
-                  ))}
-                </select>
+                {showGroupResults && groupSearch.trim() !== "" && (
+                  <ul
+                    className="list-group position-absolute w-100"
+                    style={{
+                      zIndex: 1000,
+                      maxHeight: "200px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {filteredGroups.length > 0 ? (
+                      filteredGroups.map((group) => (
+                        <li
+                          key={group._id}
+                          className="list-group-item list-group-item-action"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            setGroupId(group._id);
+                            setGroupSearch(group.groupName);
+                            setShowGroupResults(false);
+                          }}
+                        >
+                          {group.groupName}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="list-group-item text-muted">
+                        No groups found
+                      </li>
+                    )}
+                  </ul>
+                )}
               </div>
 
               {/* Tax */}
@@ -461,22 +506,50 @@ const ProductMaster = () => {
                   GST Name / Tax <span className="required">*</span>
                 </label>
 
-                <select
-                  className="form-select"
-                  value={taxId}
-                  onChange={(e) => setTaxId(e.target.value)}
-                >
-                  <option value="">Select Tax</option>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search Tax..."
+                  value={taxSearch}
+                  onChange={(e) => {
+                    setTaxSearch(e.target.value);
+                    setShowTaxResults(true);
+                    setTaxId("");
+                  }}
+                  onFocus={() => setShowTaxResults(true)}
+                />
 
-                  {taxes.map((tax) => (
-                    <option
-                      key={tax._id}
-                      value={tax._id}
-                    >
-                      {tax.taxName} ({tax.taxRate}%)
-                    </option>
-                  ))}
-                </select>
+                {showTaxResults && taxSearch.trim() !== "" && (
+                  <ul
+                    className="list-group position-absolute w-100"
+                    style={{
+                      zIndex: 1000,
+                      maxHeight: "200px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {filteredTaxes.length > 0 ? (
+                      filteredTaxes.map((tax) => (
+                        <li
+                          key={tax._id}
+                          className="list-group-item list-group-item-action"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            setTaxId(tax._id);
+                            setTaxSearch(`${tax.taxName} (${tax.taxRate}%)`);
+                            setShowTaxResults(false);
+                          }}
+                        >
+                          {tax.taxName} ({tax.taxRate}%)
+                        </li>
+                      ))
+                    ) : (
+                      <li className="list-group-item text-muted">
+                        No taxes found
+                      </li>
+                    )}
+                  </ul>
+                )}
               </div>
 
               {/* Unit */}
