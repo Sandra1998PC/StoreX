@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import "./ProductMaster.css";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import axiosInstance from "../../services/axiosInstance";
 
 const ProductMaster = () => {
   const [products, setProducts] = useState([]);
@@ -37,6 +38,11 @@ const ProductMaster = () => {
   const [showGroupResults, setShowGroupResults] = useState(false);
   const [taxSearch, setTaxSearch] = useState("");
   const [showTaxResults, setShowTaxResults] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
+  const [productImage, setProductImage] = useState(null);
+  const [uploadedProductImage,setUploadedProductImage] = useState(null)
+  const [imagePreview, setImagePreview] = useState("");
 
   const getAllProducts = async () => {
     try {
@@ -125,12 +131,15 @@ const ProductMaster = () => {
     setSalesRate("");
     setPurchaseRate("");
     setEditId(null);
+    setProductImage(null);
+    setUploadedProductImage(null);
   };
 
   // -----------------------------
   // Save / Update Product
   // -----------------------------
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     const trimmedName = productName.trim();
@@ -186,89 +195,122 @@ const ProductMaster = () => {
       (tax) => tax._id === taxId
     );
 
-    const productData = {
-      productName: trimmedName,
-      productCode: editId
-        ? productCode
-        : nextProductCode,
-      groupId,
-      groupName: selectedGroup?.groupName,
-      taxId,
-      taxName: selectedTax?.taxName,
-      taxRate: selectedTax?.taxRate,
-      unit,
-      salesRate: Number(salesRate),
-      purchaseRate: Number(purchaseRate),
-    };
+    // Create FormData
+    const formData = new FormData();
+
+    formData.append("productName", trimmedName);
+
+    formData.append(
+      "productCode",
+      editId ? productCode : nextProductCode
+    );
+
+    formData.append("groupId", groupId);
+    formData.append("groupName", selectedGroup?.groupName || "");
+
+    formData.append("taxId", taxId);
+    formData.append("taxName", selectedTax?.taxName || "");
+    formData.append("taxRate", selectedTax?.taxRate || 0);
+
+    formData.append("unit", unit);
+    formData.append("salesRate", Number(salesRate));
+    formData.append("purchaseRate", Number(purchaseRate));
+
+    formData.append(
+      "addedBy",
+      userData?.existingUser._id || ""
+    );
+
+    formData.append(
+      "addedByName",
+      userData?.existingUser.name || ""
+    );
+
+    // Append image only if selected
+    if (productImage) {
+      formData.append("productImage", productImage);
+    }
 
     // -----------------------------
     // Update existing product
     // -----------------------------
     if (editId) {
+
       try {
-        const { productName, productCode, groupId, groupName, taxId, taxName, unit, salesRate, purchaseRate } = productData;
+
         const updatedResponse = await updateProductAPI(
-          {
-            productName, productCode, groupId, groupName, taxId, taxName, unit, salesRate, purchaseRate,
-            addedBy: userData?.existingUser._id, addedByName: userData?.existingUser.name
-          },
+          formData,
           editId
         );
 
         if (updatedResponse.status === 200) {
+
           toast.success("Product updated successfully");
-          handleCancel();
+
+          handleCloseModal();
+
           getAllProducts();
+
         }
+
       } catch (error) {
+
         console.error(
           "Error updating product:",
           error.response?.data || error
         );
 
         toast.error(
-          error.response?.data?.error ||
+          error.response?.data?.message ||
           "Error updating product"
         );
+
       }
+
     }
 
     // -----------------------------
     // Add new product
     // -----------------------------
     else {
+
       try {
 
-        console.log(" productData", productData);
-        const { productName, productCode, groupId, groupName, taxId, taxName, unit, salesRate, purchaseRate } = productData;
-        const addedResponse = await addProductAPI({
-          productName, productCode, groupId, groupName, taxId, taxName, unit, salesRate, purchaseRate,
-          addedBy: userData?.existingUser._id, addedByName: userData?.existingUser.name
-        });
+        const addedResponse = await addProductAPI(formData);
 
         if (addedResponse.status === 201) {
+
           toast.success("Product added successfully");
-          handleCancel();
+
+          handleCloseModal();
+
           getAllProducts();
+
         }
+
       } catch (error) {
+
         console.error(
           "Error adding product:",
           error.response?.data || error
         );
 
         toast.error(
-          error.response?.data?.error ||
+          error.response?.data?.message ||
           "Error adding product"
         );
+
       }
+
     }
+
   };
 
   // -----------------------------
   // Edit Product
   // -----------------------------
   const handleEdit = (product) => {
+    console.log("Product : ", product)
     setEditId(product._id);
 
     setProductName(product.productName || "");
@@ -288,10 +330,15 @@ const ProductMaster = () => {
       ""
     );
 
+    setGroupSearch(product.groupName || "")
+    setTaxSearch(product.taxName)
+
     setUnit(product.unit || "");
     setSalesRate(product.salesRate ?? "");
     setPurchaseRate(product.purchaseRate ?? "");
+    setUploadedProductImage(product.productImage)
 
+    console.log("Image URL : ",`${axiosInstance.defaults.baseURL}${uploadedProductImage}`);
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -382,6 +429,37 @@ const ProductMaster = () => {
       .includes(taxSearch.toLowerCase())
   );
 
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    handleCancel();
+    setProductImage(null);
+    setImagePreview("");
+    setUploadedProductImage(null)
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image size should not exceed 2MB");
+      return;
+    }
+
+    setProductImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
   // -----------------------------
   // Render
   // -----------------------------
@@ -405,7 +483,7 @@ const ProductMaster = () => {
         </div>
 
         {/* Product Form */}
-        <div className="product-form-card">
+        {/* <div className="product-form-card">
 
           <h5 className="product-section-title">
             <i className="bi bi-plus-circle me-2"></i>
@@ -415,7 +493,6 @@ const ProductMaster = () => {
           <form onSubmit={handleSubmit}>
             <div className="row g-3">
 
-              {/* Product Name */}
               <div className="col-md-4">
                 <label className="form-label">
                   Product Name <span className="required">*</span>
@@ -432,7 +509,6 @@ const ProductMaster = () => {
                 />
               </div>
 
-              {/* Product Code */}
               <div className="col-md-4">
                 <label className="form-label">
                   Product Code <span className="required">*</span>
@@ -448,7 +524,6 @@ const ProductMaster = () => {
                 />
               </div>
 
-              {/* Group */}
               <div className="col-md-4">
                 <label className="form-label">
                   Product Group <span className="required">*</span>
@@ -500,7 +575,6 @@ const ProductMaster = () => {
                 )}
               </div>
 
-              {/* Tax */}
               <div className="col-md-3">
                 <label className="form-label">
                   GST Name / Tax <span className="required">*</span>
@@ -552,7 +626,6 @@ const ProductMaster = () => {
                 )}
               </div>
 
-              {/* Unit */}
               <div className="col-md-3">
                 <label className="form-label">
                   Unit <span className="required">*</span>
@@ -566,27 +639,8 @@ const ProductMaster = () => {
                   onChange={(e) => setUnit(e.target.value)}
                 />
 
-                {/* <select
-                  className="form-select"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                >
-                  <option value="">Select Unit</option>
-                  <option value="Nos">Nos</option>
-                  <option value="Pcs">Pcs</option>
-                  <option value="Kg">Kg</option>
-                  <option value="Gram">Gram</option>
-                  <option value="Ltr">Ltr</option>
-                  <option value="Ml">Ml</option>
-                  <option value="Box">Box</option>
-                  <option value="Pack">Pack</option>
-                  <option value="Dozen">Dozen</option>
-                  <option value="Meter">Meter</option>
-                  <option value="Feet">Feet</option>
-                </select> */}
               </div>
 
-              {/* Sales Rate */}
               <div className="col-md-3">
                 <label className="form-label">
                   Sales Rate (₹) <span className="required">*</span>
@@ -605,7 +659,6 @@ const ProductMaster = () => {
                 />
               </div>
 
-              {/* Purchase Rate */}
               <div className="col-md-3">
                 <label className="form-label">
                   Purchase Rate (₹) <span className="required">*</span>
@@ -626,7 +679,6 @@ const ProductMaster = () => {
 
             </div>
 
-            {/* Buttons */}
             <div className="product-form-actions mt-4">
 
               {!editId && (
@@ -660,13 +712,11 @@ const ProductMaster = () => {
 
             </div>
           </form>
-        </div>
+        </div> */}
 
         {/* Product List */}
         <div className="product-list-card">
-
           <div className="product-list-header">
-
             <div>
               <h5 className="product-section-title">
                 <i className="bi bi-list-ul me-2"></i>
@@ -678,18 +728,355 @@ const ProductMaster = () => {
               </p>
             </div>
 
-            {/* Search */}
-            <div className="product-search">
-              <i className="bi bi-search"></i>
+            <div className="d-flex justify-content-between align-items-center gap-3 mb-4" >
 
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) =>
-                  handleSearch(e.target.value)
-                }
-              />
+              <div>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={handleOpenModal}
+                >
+                  <i className="bi bi-plus-circle me-2"></i>
+                  Add Product
+                </button>
+                {showModal && (
+                  <div
+                    className="modal fade show d-block"
+                    tabIndex="-1"
+                    style={{ backgroundColor: "rgba(0,0,0,0.55)" }}
+                  >
+                    <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                      <div className="modal-content product-modal">
+
+                        {/* Modal Header */}
+                        <div className="modal-header">
+                          <div>
+                            <h5 className="modal-title fw-bold">
+                              <i className="bi bi-bag-plus me-2 text-success"></i>
+                              {editId ? "Edit Product" : "Add Product"}
+                            </h5>
+                            <small className="text-muted">
+                              Enter and manage product information
+                            </small>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="btn-close"
+                            onClick={handleCloseModal}
+                          ></button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="modal-body p-4">
+
+                          <form onSubmit={handleSubmit}>
+
+                            <div className="row g-4">
+
+                              {/* Product Image */}
+                              <div className="col-md-4">
+
+                                <label className="form-label fw-semibold">
+                                  Product Image
+                                </label>
+
+                                <div className="product-image-upload">
+
+                                  {imagePreview ? (
+                                    <img
+                                      src={imagePreview}
+                                      alt="Product Preview"
+                                      className="product-image-preview w-100 h-100"
+                                    />
+                                  ) :
+                                    uploadedProductImage ? (
+                                      // Existing image from database
+                                      <img
+                                        src={`${axiosInstance.defaults.baseURL}${uploadedProductImage}`}
+                                        alt="Product Image"
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="product-image-placeholder">
+                                        <i className="bi bi-cloud-arrow-up"></i>
+                                        <h6>Upload Product Image</h6>
+                                        <small>
+                                          JPG, PNG or WEBP (Max 2MB)
+                                        </small>
+                                      </div>
+                                    )}
+
+                                  <label
+                                    htmlFor="productImage"
+                                    className="btn btn-outline-success btn-sm mt-3"
+                                  >
+                                    <i className="bi bi-upload me-2"></i>
+                                    Choose Image
+                                  </label>
+
+                                  <input
+                                    type="file"
+                                    id="productImage"
+                                    accept="image/*"
+                                    className="d-none"
+                                    onChange={handleImageChange}
+                                  />
+
+                                  {imagePreview && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm btn-outline-danger ms-2 mt-3"
+                                      onClick={() => {
+                                        setProductImage(null);
+                                        setImagePreview("");
+                                        document.getElementById("productImage").value = "";
+                                      }}
+                                    >
+                                      <i className="bi bi-trash me-1"></i>
+                                      Remove
+                                    </button>
+                                  )}
+
+                                </div>
+
+                              </div>
+
+                              {/* Product Details */}
+                              <div className="col-md-8">
+
+                                <div className="row g-3">
+
+                                  {/* Product Name */}
+                                  <div className="col-md-6">
+                                    <label className="form-label">
+                                      Product Name <span className="required">*</span>
+                                    </label>
+
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      placeholder="Enter product name"
+                                      value={productName}
+                                      onChange={(e) => setProductName(e.target.value)}
+                                      required
+                                    />
+                                  </div>
+
+                                  {/* Product Code */}
+                                  <div className="col-md-6">
+                                    <label className="form-label">
+                                      Product Code <span className="required">*</span>
+                                    </label>
+
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      value={editId ? productCode : nextProductCode}
+                                      readOnly
+                                    />
+                                  </div>
+
+                                  {/* Product Group */}
+                                  <div className="col-md-6 position-relative">
+                                    <label className="form-label">
+                                      Product Group <span className="required">*</span>
+                                    </label>
+
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      placeholder="Search Group..."
+                                      value={groupSearch}
+                                      onChange={(e) => {
+                                        setGroupSearch(e.target.value);
+                                        setShowGroupResults(true);
+                                        setGroupId("");
+                                      }}
+                                      onFocus={() => setShowGroupResults(true)}
+                                      required
+                                    />
+
+                                    {showGroupResults && groupSearch.trim() !== "" && (
+                                      <ul className="list-group position-absolute w-100 product-dropdown z-3">
+                                        {filteredGroups.length > 0 ? (
+                                          filteredGroups.map((group) => (
+                                            <li
+                                              key={group._id}
+                                              className="list-group-item list-group-item-action"
+                                              onClick={() => {
+                                                setGroupId(group._id);
+                                                setGroupSearch(group.groupName);
+                                                setShowGroupResults(false);
+                                              }}
+                                            >
+                                              {group.groupName}
+                                            </li>
+                                          ))
+                                        ) : (
+                                          <li className="list-group-item text-muted">
+                                            No groups found
+                                          </li>
+                                        )}
+                                      </ul>
+                                    )}
+                                  </div>
+
+                                  {/* Tax */}
+                                  <div className="col-md-6 position-relative">
+                                    <label className="form-label">
+                                      GST Name / Tax <span className="required">*</span>
+                                    </label>
+
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      placeholder="Search Tax..."
+                                      value={taxSearch}
+                                      onChange={(e) => {
+                                        setTaxSearch(e.target.value);
+                                        setShowTaxResults(true);
+                                        setTaxId("");
+                                      }}
+                                      onFocus={() => setShowTaxResults(true)}
+                                      required
+                                    />
+
+                                    {showTaxResults && taxSearch.trim() !== "" && (
+                                      <ul className="list-group position-absolute w-100 product-dropdown z-3">
+                                        {filteredTaxes.length > 0 ? (
+                                          filteredTaxes.map((tax) => (
+                                            <li
+                                              key={tax._id}
+                                              className="list-group-item list-group-item-action"
+                                              onClick={() => {
+                                                setTaxId(tax._id);
+                                                setTaxSearch(
+                                                  `${tax.taxName} (${tax.taxRate}%)`
+                                                );
+                                                setShowTaxResults(false);
+                                              }}
+                                            >
+                                              {tax.taxName} ({tax.taxRate}%)
+                                            </li>
+                                          ))
+                                        ) : (
+                                          <li className="list-group-item text-muted">
+                                            No taxes found
+                                          </li>
+                                        )}
+                                      </ul>
+                                    )}
+                                  </div>
+
+                                  {/* Unit */}
+                                  <div className="col-md-6">
+                                    <label className="form-label">
+                                      Unit <span className="required">*</span>
+                                    </label>
+
+                                    <input
+                                      type="number"
+                                      className="form-control"
+                                      placeholder="Enter unit"
+                                      value={unit}
+                                      onChange={(e) => setUnit(e.target.value)}
+                                      required
+                                    />
+                                  </div>
+
+                                  {/* Sales Rate */}
+                                  <div className="col-md-6">
+                                    <label className="form-label">
+                                      Sales Rate (₹) <span className="required">*</span>
+                                    </label>
+
+                                    <input
+                                      type="number"
+                                      className="form-control"
+                                      placeholder="Enter sales rate"
+                                      min="0"
+                                      step="0.01"
+                                      value={salesRate}
+                                      onChange={(e) => setSalesRate(e.target.value)}
+                                      required
+                                    />
+                                  </div>
+
+                                  {/* Purchase Rate */}
+                                  <div className="col-md-6">
+                                    <label className="form-label">
+                                      Purchase Rate (₹) <span className="required">*</span>
+                                    </label>
+
+                                    <input
+                                      type="number"
+                                      className="form-control"
+                                      placeholder="Enter purchase rate"
+                                      min="0"
+                                      step="0.01"
+                                      value={purchaseRate}
+                                      onChange={(e) => setPurchaseRate(e.target.value)}
+                                      required
+                                    />
+                                  </div>
+
+                                </div>
+                              </div>
+
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="modal-footer mt-4 px-0 pb-0">
+
+                              <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={handleCancel}
+                              >
+                                <i className="bi bi-arrow-counterclockwise me-2"></i>
+                                Reset
+                              </button>
+
+                              <button
+                                type="button"
+                                className="btn btn-danger"
+                                onClick={handleCloseModal}
+                              >
+                                Cancel
+                              </button>
+
+                              <button
+                                type="submit"
+                                className={`btn ${editId ? "btn-warning" : "btn-success"}`}
+                              >
+                                <i className="bi bi-floppy me-2"></i>
+                                {editId ? "Update Product" : "Save Product"}
+                              </button>
+
+                            </div>
+
+                          </form>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {/* Search */}
+              <div className="product-search">
+                <i className="bi bi-search"></i>
+
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) =>
+                    handleSearch(e.target.value)
+                  }
+                />
+              </div>
             </div>
           </div>
 
@@ -765,14 +1152,16 @@ const ProductMaster = () => {
                           <button
                             className="btn btn-edit-product"
                             title="Edit"
-                            onClick={() =>
+                            onClick={() => {
+                              setShowModal(true)
                               handleEdit(product)
+                            }
                             }
                           >
                             <i className="bi bi-pencil-square"></i>
                           </button>
 
-                          {/* <button
+                          <button
                             className="btn btn-delete-product"
                             title="Delete"
                             onClick={() =>
@@ -780,7 +1169,7 @@ const ProductMaster = () => {
                             }
                           >
                             <i className="bi bi-trash"></i>
-                          </button> */}
+                          </button>
 
                         </div>
                       </td>

@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import "./Sales.css";
+import axiosInstance from "../../services/axiosInstance";
 
 const Sales = () => {
   const [products, setProducts] = useState([]);
@@ -31,6 +32,8 @@ const Sales = () => {
   const [salesRate, setSalesRate] = useState("");
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const [showInvoiceResults, setShowInvoiceResults] = useState(false);
+  const [imgCurrentPage, setImgCurrentPage] = useState(1);
+  const productsPerPage = 6;
 
   const getInvoiceNumbers = async () => {
     try {
@@ -488,30 +491,44 @@ const Sales = () => {
 
   const handleAddProduct = (product) => {
 
-  const existingItem = items.find(
-    (item) => item.productId === product._id
+    const existingItem = items.find(
+      (item) => item.productId === product._id
+    );
+
+    if (existingItem) {
+
+      increaseQuantity(product._id);
+
+    } else {
+
+      const newItem = {
+        productId: product._id,
+        productName: product.productName,
+        productCode: product.productCode,
+        unit: product.unit,
+        quantity: 1,
+        rate: Number(product.salesRate),
+        amount: Number(product.salesRate),
+      };
+
+      setItems((prevItems) => [...prevItems, newItem]);
+
+    }
+  };
+
+  const imgTotalPages = Math.ceil(products.length / productsPerPage);
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
   );
 
-  if (existingItem) {
-
-    increaseQuantity(product._id);
-
-  } else {
-
-    const newItem = {
-      productId: product._id,
-      productName: product.productName,
-      productCode: product.productCode,
-      unit: product.unit,
-      quantity: 1,
-      rate: Number(product.salesRate),
-      amount: Number(product.salesRate),
-    };
-
-    setItems((prevItems) => [...prevItems, newItem]);
-
-  }
-};
+  const handlePageChange = (page) => {
+    setImgCurrentPage(page);
+  };
 
   return (
     <>
@@ -904,23 +921,109 @@ const Sales = () => {
                   <i className="bi bi-grid me-2"></i>
                   Select Products
                 </h5>
+
                 <div className="row g-3">
-                  {products.map((product) => (
+
+                  {currentProducts.map((product) => (
                     <div className="col-6 col-md-4" key={product._id}>
-                      <button
-                        type="button"
-                        className="btn btn-outline-success w-100 product-select-btn"
-                        onClick={() => handleAddProduct(product)}
-                      >
-                        <i className="bi bi-box-seam fs-4 d-block mb-2"></i>
-                        <strong>{product.productName}</strong>
-                        <small className="d-block mt-1">
-                          ₹{Number(product.salesRate).toFixed(2)}
-                        </small>
-                      </button>
+
+                      <div className="product-select-card">
+
+                        {/* Product Image */}
+                        <div className="product-select-image">
+
+                          {product.productImage ? (
+                            <img
+                              src={`${axiosInstance.defaults.baseURL}${product.productImage}`}
+                              alt={product.productName}
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.nextSibling.style.display = "flex";
+                              }}
+                            />
+                          ) : null}
+
+                          <div
+                            className="product-no-image"
+                            style={{
+                              display: product.productImage ? "none" : "flex"
+                            }}
+                          >
+                            <i className="bi bi-image"></i>
+                          </div>
+
+                        </div>
+
+                        {/* Product Details */}
+                        <div className="product-select-details">
+
+                          <strong
+                            className="product-select-name"
+                            title={product.productName}
+                          >
+                            {product.productName}
+                          </strong>
+
+                          <small className="text-muted">
+                            {product.productCode}
+                          </small>
+
+                          <div className="product-select-price">
+                            ₹{Number(product.salesRate).toFixed(2)}
+                          </div>
+
+                          <button
+                            type="button"
+                            className="btn btn-success btn-sm w-100 mt-2"
+                            onClick={() => handleAddProduct(product)}
+                          >
+                            <i className="bi bi-plus-circle me-1"></i>
+                            Add Item
+                          </button>
+
+                        </div>
+
+                      </div>
+
                     </div>
                   ))}
+                  {products.length > productsPerPage && (
+                    <div className="col-12 d-flex justify-content-center align-items-center gap-3 mt-3">
+
+                      <button
+                        type="button"
+                        className="btn btn-outline-success btn-sm"
+                        disabled={currentPage === 1}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                      >
+                        <i className="bi bi-chevron-left"></i> Previous
+                      </button>
+
+                      <span className="text-muted">
+                        Page {currentPage} of {imgTotalPages}
+                      </span>
+
+                      <button
+                        type="button"
+                        className="btn btn-outline-success btn-sm"
+                        disabled={currentPage === imgTotalPages}
+                        onClick={() => handlePageChange(currentPage + 1)}
+                      >
+                        Next <i className="bi bi-chevron-right"></i>
+                      </button>
+
+                    </div>
+                  )}
+
+                  {products.length === 0 && (
+                    <div className="col-12 text-center text-muted py-4">
+                      <i className="bi bi-box-seam fs-2"></i>
+                      <p className="mt-2 mb-0">No products available</p>
+                    </div>
+                  )}
+
                 </div>
+
               </div>
             </div>
           </div>
