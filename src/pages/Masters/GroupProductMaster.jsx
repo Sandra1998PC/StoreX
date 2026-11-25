@@ -123,21 +123,31 @@ const GroupProductMaster = () => {
             confirmButtonText: "Yes, delete it!",
             cancelButtonText: "Cancel",
         });
+        try {
+            if (confirmDelete.isConfirmed) {
+                const deleteGroupResponse = await deleteProductGroupAPI(id);
+                if (deleteGroupResponse.status === 200) {
+                    fetchGroups();
+                    if (editId === id) {
+                        setEditId(null);
+                        setGroupName("");
+                    }
 
-        if (confirmDelete.isConfirmed) {
-            const deleteGroupResponse = await deleteProductGroupAPI(id);
-            if (deleteGroupResponse.status === 200) {
-                fetchGroups();
-                if (editId === id) {
-                    setEditId(null);
-                    setGroupName("");
+                    toast.success("Group deleted successfully");
                 }
+                else {
+                    toast.error("Failed to delete group");
+                }
+            }
+        }
+        catch (err) {
+            const errorMessage =
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                err.message ||
+                "Something went wrong while deleting the group";
 
-                toast.success("Group deleted successfully");
-            }
-            else {
-                toast.error("Failed to delete group");
-            }
+            toast.error(errorMessage);
         }
     };
 
@@ -325,14 +335,14 @@ const GroupProductMaster = () => {
                                                             <i className="bi bi-pencil-square"></i>
                                                         </button>
 
-                                                        {/* <button
+                                                        <button
                                                             type="button"
                                                             className="group-delete-btn"
                                                             onClick={() => handleDelete(group._id)}
                                                             title="Delete"
                                                         >
                                                             <i className="bi bi-trash"></i>
-                                                        </button> */}
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>

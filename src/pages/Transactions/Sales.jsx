@@ -394,6 +394,7 @@ const Sales = () => {
   const getSalesDetails = async (invoiceNumber) => {
     try {
       const result = await getSalesByInvoiceNumberAPI(invoiceNumber);
+      console.log("result ", result);
 
       if (result.status === 200) {
         const { salesMaster, salesItems } = result.data.data;
@@ -407,7 +408,8 @@ const Sales = () => {
           productName: item.ProductName,
           quantity: item.Qty,
           rate: item.Rate,
-          amount: item.Amount
+          amount: item.Amount,
+          // unit: item.unit
         }));
 
         setItems(updatedItems);
@@ -518,7 +520,7 @@ const Sales = () => {
 
   const imgTotalPages = Math.ceil(products.length / productsPerPage);
 
-  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfLastProduct = imgCurrentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
 
   const currentProducts = products.slice(
@@ -769,7 +771,7 @@ const Sales = () => {
                     <tr>
                       <th>Sl. No.</th>
                       <th>Product</th>
-                      <th>Unit</th>
+                      {/* <th>Unit</th> */}
                       <th>Quantity</th>
                       <th>Rate (₹)</th>
                       <th>Amount (₹)</th>
@@ -790,7 +792,7 @@ const Sales = () => {
                             </small>
                           </td>
 
-                          <td>{item.unit}</td>
+                          {/* <td>{item.unit}</td> */}
 
                           <td>
                             <div className="sales-qty-control">
@@ -993,21 +995,21 @@ const Sales = () => {
                       <button
                         type="button"
                         className="btn btn-outline-success btn-sm"
-                        disabled={currentPage === 1}
-                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={imgCurrentPage === 1}
+                        onClick={() => handlePageChange(imgCurrentPage - 1)}
                       >
                         <i className="bi bi-chevron-left"></i> Previous
                       </button>
 
                       <span className="text-muted">
-                        Page {currentPage} of {imgTotalPages}
+                        Page {imgCurrentPage} of {imgTotalPages}
                       </span>
 
                       <button
                         type="button"
                         className="btn btn-outline-success btn-sm"
-                        disabled={currentPage === imgTotalPages}
-                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={imgCurrentPage === imgTotalPages}
+                        onClick={() => handlePageChange(imgCurrentPage + 1)}
                       >
                         Next <i className="bi bi-chevron-right"></i>
                       </button>

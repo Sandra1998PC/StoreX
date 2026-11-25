@@ -95,3 +95,7 @@ export const getDistinctInvoiceNumbersAPI = async () => {
 export const updateSalesAPI = async (id, reqBody) => {
     return await commonAPI("PUT",`/transactions/update-sales/${id}`,reqBody);
 };
+
+export const getDistinctUnitsAPI = async () => {
+    return await commonAPI("GET",`/master/get-distinct-units`,"");
+};

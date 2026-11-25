@@ -1,0 +1,90 @@
+
+.storex-loader-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.96);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+.storex-loader-content {
+    text-align: center;
+}
+
+.storex-loader-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.storex-loader-icon {
+    width: 45px;
+    height: 45px;
+    background: #2563eb;
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+}
+
+.storex-loader-logo h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #172033;
+    margin: 0;
+    letter-spacing: -1px;
+}
+
+.storex-loader-logo h2 span {
+    color: #2563eb;
+}
+
+.storex-loading-animation {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-bottom: 15px;
+}
+
+.storex-loading-animation span {
+    width: 9px;
+    height: 9px;
+    background: #2563eb;
+    border-radius: 50%;
+    animation: storexBounce 0.8s infinite ease-in-out;
+}
+
+.storex-loading-animation span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.storex-loading-animation span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.storex-loader-content p {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+}
+
+@keyframes storexBounce {
+    0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.5;
+    }
+
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}

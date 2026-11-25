@@ -6,6 +6,7 @@ import {
   deleteProductAPI,
   getProductGroupAPI,
   getTaxAPI,
+  getDistinctUnitsAPI,
 } from "../../services/allAPIs";
 
 import Swal from "sweetalert2";
@@ -24,7 +25,11 @@ const ProductMaster = () => {
   const [productCode, setProductCode] = useState("");
   const [groupId, setGroupId] = useState("");
   const [taxId, setTaxId] = useState("");
+  const [unitSearch, setUnitSearch] = useState("");
   const [unit, setUnit] = useState("");
+  const [customUnit, setCustomUnit] = useState("");
+  const [isCustomUnit, setIsCustomUnit] = useState(false);
+  const [showUnitResults, setShowUnitResults] = useState(false);
   const [salesRate, setSalesRate] = useState("");
   const [purchaseRate, setPurchaseRate] = useState("");
 
@@ -41,8 +46,32 @@ const ProductMaster = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [productImage, setProductImage] = useState(null);
-  const [uploadedProductImage,setUploadedProductImage] = useState(null)
+  const [uploadedProductImage, setUploadedProductImage] = useState(null)
   const [imagePreview, setImagePreview] = useState("");
+
+  const [units, setUnits] = useState([]);
+
+  const getDistinctUnits = async () => {
+    try {
+      const response = await getDistinctUnitsAPI();
+      console.log("unit response", response);
+      if (response.status === 200) {
+        setUnits(response.data.data);
+      }
+
+    } catch (error) {
+      console.error("Error fetching units:", error);
+    }
+    console.log("Units : ", units)
+  };
+
+  useEffect(() => {
+    getDistinctUnits();
+  }, []);
+
+  const filteredUnits = units.filter((u) =>
+    u.toLowerCase().includes(unitSearch.toLowerCase())
+  );
 
   const getAllProducts = async () => {
     try {
@@ -120,9 +149,10 @@ const ProductMaster = () => {
   }, []);
 
   // -----------------------------
-  // Clear Form
+  // Clear / Reset Form
   // -----------------------------
   const handleCancel = () => {
+    // Product details
     setProductName("");
     setProductCode("");
     setGroupId("");
@@ -130,9 +160,34 @@ const ProductMaster = () => {
     setUnit("");
     setSalesRate("");
     setPurchaseRate("");
-    setEditId(null);
+
+    // Product group search
+    setGroupSearch("");
+    setShowGroupResults(false);
+
+    // Tax search
+    setTaxSearch("");
+    setShowTaxResults(false);
+
+    // Unit search and custom unit
+    setUnitSearch("");
+    setCustomUnit("");
+    setIsCustomUnit(false);
+    setShowUnitResults(false);
+
+    // Image
     setProductImage(null);
     setUploadedProductImage(null);
+    setImagePreview("");
+
+    // Edit state
+    setEditId(null);
+
+    // Clear file input
+    const imageInput = document.getElementById("productImage");
+    if (imageInput) {
+      imageInput.value = "";
+    }
   };
 
   // -----------------------------
@@ -159,10 +214,10 @@ const ProductMaster = () => {
       return;
     }
 
-    if (!unit) {
-      toast.error("Please select unit");
-      return;
-    }
+    // if (!unit) {
+    //   toast.error("Please select unit");
+    //   return;
+    // }
 
     if (salesRate === "" || Number(salesRate) < 0) {
       toast.error("Please enter a valid sales rate");
@@ -184,6 +239,20 @@ const ProductMaster = () => {
 
     if (duplicateName) {
       toast.error("Product name already exists");
+      return;
+    }
+
+    const selectedUnit = isCustomUnit
+      ? customUnit.trim().toUpperCase()
+      : unit;
+
+    if (!selectedUnit) {
+      toast.error("Please select or enter a unit");
+      return;
+    }
+
+    if (selectedUnit.length > 3) {
+      toast.error("Unit should not exceed 3 characters");
       return;
     }
 
@@ -212,7 +281,7 @@ const ProductMaster = () => {
     formData.append("taxName", selectedTax?.taxName || "");
     formData.append("taxRate", selectedTax?.taxRate || 0);
 
-    formData.append("unit", unit);
+    formData.append("unit", selectedUnit);
     formData.append("salesRate", Number(salesRate));
     formData.append("purchaseRate", Number(purchaseRate));
 
@@ -286,6 +355,8 @@ const ProductMaster = () => {
 
           getAllProducts();
 
+          getDistinctUnits()
+
         }
 
       } catch (error) {
@@ -333,12 +404,13 @@ const ProductMaster = () => {
     setGroupSearch(product.groupName || "")
     setTaxSearch(product.taxName)
 
+    setUnitSearch(product.unit || "");
     setUnit(product.unit || "");
     setSalesRate(product.salesRate ?? "");
     setPurchaseRate(product.purchaseRate ?? "");
     setUploadedProductImage(product.productImage)
 
-    console.log("Image URL : ",`${axiosInstance.defaults.baseURL}${uploadedProductImage}`);
+    console.log("Image URL : ", `${axiosInstance.defaults.baseURL}${uploadedProductImage}`);
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -787,26 +859,21 @@ const ProductMaster = () => {
                                     <img
                                       src={imagePreview}
                                       alt="Product Preview"
-                                      className="product-image-preview w-100 h-100"
+                                      className="product-image-preview"
                                     />
-                                  ) :
-                                    uploadedProductImage ? (
-                                      // Existing image from database
-                                      <img
-                                        src={`${axiosInstance.defaults.baseURL}${uploadedProductImage}`}
-                                        alt="Product Image"
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="product-image-placeholder">
-                                        <i className="bi bi-cloud-arrow-up"></i>
-                                        <h6>Upload Product Image</h6>
-                                        <small>
-                                          JPG, PNG or WEBP (Max 2MB)
-                                        </small>
-                                      </div>
-                                    )}
-
+                                  ) : uploadedProductImage ? (
+                                    <img
+                                      src={`${axiosInstance.defaults.baseURL}${uploadedProductImage}`}
+                                      alt="Product Image"
+                                      className="product-image-preview"
+                                    />
+                                  ) : (
+                                    <div className="product-image-placeholder">
+                                      <i className="bi bi-cloud-arrow-up"></i>
+                                      <h6>Upload Product Image</h6>
+                                      <small>JPG, PNG or WEBP (Max 2MB)</small>
+                                    </div>
+                                  )}
                                   <label
                                     htmlFor="productImage"
                                     className="btn btn-outline-success btn-sm mt-3"
@@ -975,14 +1042,96 @@ const ProductMaster = () => {
                                       Unit <span className="required">*</span>
                                     </label>
 
-                                    <input
-                                      type="number"
-                                      className="form-control"
-                                      placeholder="Enter unit"
-                                      value={unit}
-                                      onChange={(e) => setUnit(e.target.value)}
-                                      required
-                                    />
+                                    <div className="position-relative">
+
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Search or select unit"
+                                        value={isCustomUnit ? customUnit : unitSearch}
+                                        maxLength={3}
+                                        onChange={(e) => {
+                                          const value = e.target.value;
+
+                                          if (isCustomUnit) {
+                                            setCustomUnit(value);
+                                          } else {
+                                            setUnitSearch(value);
+                                            setUnit("");
+                                            setShowUnitResults(true);
+                                          }
+                                        }}
+                                        onFocus={() => {
+                                          if (!isCustomUnit) {
+                                            setShowUnitResults(true);
+                                          }
+                                        }}
+                                      />
+
+                                      {showUnitResults && !isCustomUnit && (
+                                        <div
+                                          className="position-absolute bg-white border rounded w-100 shadow-sm"
+                                          style={{
+                                            zIndex: 1000,
+                                            maxHeight: "150px",
+                                            overflowY: "auto"
+                                          }}
+                                        >
+
+                                          {filteredUnits.map((u, index) => (
+                                            <div
+                                              key={index}
+                                              className="p-2"
+                                              style={{ cursor: "pointer" }}
+                                              onClick={() => {
+                                                setUnit(u);
+                                                setUnitSearch(u);
+                                                setShowUnitResults(false);
+                                              }}
+                                            >
+                                              {u}
+                                            </div>
+                                          ))}
+
+                                          <div
+                                            className="p-2 text-primary border-top"
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => {
+                                              setIsCustomUnit(true);
+                                              setUnit("");
+                                              setUnitSearch("");
+                                              setCustomUnit("");
+                                              setShowUnitResults(false);
+                                            }}
+                                          >
+                                            + Add New Unit
+                                          </div>
+
+                                        </div>
+                                      )}
+
+                                      {isCustomUnit && (
+                                        <div className="mt-2">
+                                          <small className="text-muted">
+                                            Enter a new unit (maximum 3 characters)
+                                          </small>
+
+                                          <button
+                                            type="button"
+                                            className="btn btn-sm btn-link text-danger p-0 ms-2"
+                                            onClick={() => {
+                                              setIsCustomUnit(false);
+                                              setCustomUnit("");
+                                              setUnitSearch("");
+                                              setUnit("");
+                                            }}
+                                          >
+                                            Cancel
+                                          </button>
+                                        </div>
+                                      )}
+
+                                    </div>
                                   </div>
 
                                   {/* Sales Rate */}
@@ -1161,7 +1310,7 @@ const ProductMaster = () => {
                             <i className="bi bi-pencil-square"></i>
                           </button>
 
-                          <button
+                          {/* <button
                             className="btn btn-delete-product"
                             title="Delete"
                             onClick={() =>
@@ -1169,7 +1318,7 @@ const ProductMaster = () => {
                             }
                           >
                             <i className="bi bi-trash"></i>
-                          </button>
+                          </button> */}
 
                         </div>
                       </td>
