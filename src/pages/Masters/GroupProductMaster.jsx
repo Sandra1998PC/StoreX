@@ -15,6 +15,7 @@ const GroupProductMaster = () => {
     const [editId, setEditId] = useState(null);
     const [userData, setUserData] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [showGroupModal, setShowGroupModal] = useState(false);
 
     const fetchGroups = async () => {
         try {
@@ -102,13 +103,15 @@ const GroupProductMaster = () => {
 
         }
 
-        setGroupName("");
+        setShowGroupModal(false);
+        handleCancel();
     };
 
     // Edit group
     const handleEdit = (group) => {
         setGroupName(group.groupName);
         setEditId(group._id);
+        setShowGroupModal(true);
     };
 
     // Delete group
@@ -197,7 +200,7 @@ const GroupProductMaster = () => {
                 <div className="group-master-content">
 
                     {/* Add / Edit Form */}
-                    <div className="group-form-card">
+                    {/* <div className="group-form-card">
 
                         <div className="group-card-heading">
                             <div className="group-heading-icon">
@@ -216,8 +219,6 @@ const GroupProductMaster = () => {
 
                         <form onSubmit={handleSubmit}>
                             <div className="row align-items-start">
-
-                                {/* Group Code */}
                                 <div className="col-md-4 mb-3">
                                     <label className="form-label">Group Code</label>
                                     <input
@@ -235,7 +236,6 @@ const GroupProductMaster = () => {
                                     </small>
                                 </div>
 
-                                {/* Group Name */}
                                 <div className="col-md-5 mb-3">
                                     <label className="form-label">
                                         Group Name <span className="required-star">*</span>
@@ -249,8 +249,6 @@ const GroupProductMaster = () => {
                                         maxLength={50}
                                     />
                                 </div>
-
-                                {/* Form Actions */}
                                 <div className="col-md-3 mb-3">
                                     <div className="group-form-actions d-flex gap-2">
                                         <button type="submit" className={`btn ${editId !== null ? "btn-warning" : "btn-success"}`}>
@@ -275,7 +273,137 @@ const GroupProductMaster = () => {
 
                             </div>
                         </form>
-                    </div>
+                    </div> */}
+
+                    {/* Group Modal */}
+                    {showGroupModal && (
+                        <div
+                            className="modal fade show d-block"
+                            tabIndex="-1"
+                            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+                        >
+                            <div className="modal-dialog modal-dialog-centered">
+                                <div className="modal-content">
+
+                                    {/* Modal Header */}
+                                    <div className="modal-header">
+                                        <div className="group-card-heading d-flex align-items-center gap-3">
+                                            <div className="group-heading-icon">
+                                                <i className="bi bi-collection"></i>
+                                            </div>
+
+                                            <div>
+                                                <h5 className="modal-title mb-1">
+                                                    {editId !== null ? "Edit Group" : "Add New Group"}
+                                                </h5>
+                                                <p className="mb-0 text-muted small">
+                                                    {editId !== null
+                                                        ? "Update the selected product group."
+                                                        : "Enter a group name to create a new group."}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            className="btn-close"
+                                            onClick={() => {
+                                                setShowGroupModal(false);
+                                                handleCancel();
+                                            }}
+                                        ></button>
+                                    </div>
+
+                                    {/* Modal Body */}
+                                    <form onSubmit={handleSubmit}>
+                                        <div className="modal-body">
+
+                                            <div className="row">
+
+                                                {/* Group Code */}
+                                                <div className="col-md-12 mb-3">
+                                                    <label className="form-label">
+                                                        Group Code
+                                                    </label>
+
+                                                    <input
+                                                        type="text"
+                                                        className="form-control group-code-input"
+                                                        value={
+                                                            editId !== null
+                                                                ? groups.find(
+                                                                    (group) => group._id === editId
+                                                                )?.groupCode || ""
+                                                                : nextGroupCode
+                                                        }
+                                                        readOnly
+                                                    />
+
+                                                    <small className="group-help-text">
+                                                        Automatically generated
+                                                    </small>
+                                                </div>
+
+                                                {/* Group Name */}
+                                                <div className="col-md-12 mb-3">
+                                                    <label className="form-label">
+                                                        Group Name
+                                                        <span className="required-star">*</span>
+                                                    </label>
+
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        placeholder="Enter group name"
+                                                        value={groupName}
+                                                        onChange={(e) => setGroupName(e.target.value)}
+                                                        maxLength={50}
+                                                        required
+                                                    />
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        {/* Modal Footer */}
+                                        <div className="modal-footer">
+
+                                            <button
+                                                type="button"
+                                                className="btn btn-secondary"
+                                                onClick={() => {
+                                                    setShowGroupModal(false);
+                                                    handleCancel();
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                type="submit"
+                                                className={`btn ${editId !== null
+                                                    ? "btn-warning"
+                                                    : "btn-success"
+                                                    }`}
+                                            >
+                                                <i
+                                                    className={`bi ${editId !== null
+                                                        ? "bi-check-lg"
+                                                        : "bi-plus-lg"
+                                                        } me-2`}
+                                                ></i>
+
+                                                {editId !== null ? "Update Group" : "Save Group"}
+                                            </button>
+
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Group List */}
                     <div className="group-table-card">
@@ -286,14 +414,30 @@ const GroupProductMaster = () => {
                                 <p>{groups.length} group(s) added</p>
                             </div>
 
-                            <div className="group-search">
-                                <i className="bi bi-search"></i>
-                                <input
-                                    type="text"
-                                    placeholder="Search group..."
-                                    value={searchTerm}
-                                    onChange={(e) => handleSearch(e.target.value)}
-                                />
+                            <div className="d-flex justify-content-between align-items-center gap-3 mb-4">
+                                <div>
+                                    {/* Add Group Button */}
+                                    <button
+                                        type="button"
+                                        className="btn btn-success"
+                                        onClick={() => {
+                                            handleCancel();
+                                            setShowGroupModal(true);
+                                        }}
+                                    >
+                                        <i className="bi bi-plus-lg me-2"></i>
+                                        Add New Group
+                                    </button>
+                                </div>
+                                <div className="group-search">
+                                    <i className="bi bi-search"></i>
+                                    <input
+                                        type="text"
+                                        placeholder="Search group..."
+                                        value={searchTerm}
+                                        onChange={(e) => handleSearch(e.target.value)}
+                                    />
+                                </div>
                             </div>
                         </div>
 
