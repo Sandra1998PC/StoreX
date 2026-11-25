@@ -34,6 +34,7 @@ const Sales = () => {
   const [showInvoiceResults, setShowInvoiceResults] = useState(false);
   const [imgCurrentPage, setImgCurrentPage] = useState(1);
   const productsPerPage = 6;
+  const [isEditing, setIsEditing] = useState(false);
 
   const getInvoiceNumbers = async () => {
     try {
@@ -350,6 +351,7 @@ const Sales = () => {
     setQuantity(1);
     setInvoiceDate(new Date().toISOString().split("T")[0]);
     setEditInvoiceId(null);
+    setIsEditing(false)
     setSearchInvoiceNo("");
     setCustomerName("")
     setSalesRate("")
@@ -459,6 +461,7 @@ const Sales = () => {
     setItems(invoice[0].items);
     setEditInvoiceId(invoice[0].id);
     setCustomerName(invoice[0].CustomerName)
+    setIsEditing(true);
     toast.success("Invoice loaded for editing");
   }
 
@@ -556,78 +559,104 @@ const Sales = () => {
             Invoice Details
           </h5>
 
+
           <div className="row g-3">
 
-            {/* <div className="col-md-4">
-              <label className="form-label">Invoice Number</label>
-              <input
-                type="text"
-                className="form-control read-only-input"
-                value={invoiceNo}
-                readOnly
-              />
-            </div> */}
+            {/* Invoice Number / Edit Existing Invoice */}
+            <div className="col-md-3">
 
-            <div className="col-md-2">
-              <label className="form-label">Edit Existing Invoice</label>
-
-              <div className="input-group">
-
-                <div className="position-relative">
+              {!isEditing ? (
+                <>
+                  <label className="form-label">Invoice Number</label>
                   <input
                     type="text"
-                    className="form-control"
-                    placeholder="Search Invoice..."
-                    value={invoiceSearch}
-                    onChange={(e) => {
-                      setInvoiceSearch(e.target.value);
-                      setShowInvoiceResults(true);
-                      setSearchInvoiceNo("");
-                    }}
-                    onFocus={() => setShowInvoiceResults(true)}
+                    className="form-control read-only-input"
+                    value={invoiceNo}
+                    readOnly
                   />
 
-                  {showInvoiceResults && invoiceSearch.trim() !== "" && (
-                    <ul
-                      className="list-group position-absolute w-100"
-                      style={{
-                        zIndex: 1000,
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                      }}
-                    >
-                      {filteredInvoices.length > 0 ? (
-                        filteredInvoices.map((number) => (
-                          <li
-                            key={number}
-                            className="list-group-item list-group-item-action"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => {
-                              setSearchInvoiceNo(number);
-                              setInvoiceSearch(number);
-                              setShowInvoiceResults(false);
+                  <button
+                    type="button"
+                    className="btn btn-link btn-sm text-success p-0 mt-1"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Edit Existing Invoice
+                  </button>
+                </>
+              ) : (
+                <>
+                  <label className="form-label">Select Existing Invoice</label>
 
-                              // Execute your existing edit dropdown logic
-                              handleEditDropdown({
-                                target: { value: number },
-                              });
-                            }}
-                          >
-                            {number}
+                  <div className="position-relative">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Search Invoice..."
+                      value={invoiceSearch}
+                      onChange={(e) => {
+                        setInvoiceSearch(e.target.value);
+                        setShowInvoiceResults(true);
+                        setSearchInvoiceNo("");
+                      }}
+                      onFocus={() => setShowInvoiceResults(true)}
+                    />
+
+                    {showInvoiceResults && invoiceSearch.trim() !== "" && (
+                      <ul
+                        className="list-group position-absolute w-100"
+                        style={{
+                          zIndex: 1000,
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {filteredInvoices.length > 0 ? (
+                          filteredInvoices.map((number) => (
+                            <li
+                              key={number}
+                              className="list-group-item list-group-item-action"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => {
+                                setSearchInvoiceNo(number);
+                                setInvoiceSearch(number);
+                                setShowInvoiceResults(false);
+
+                                handleEditDropdown({
+                                  target: { value: number },
+                                });
+                              }}
+                            >
+                              {number}
+                            </li>
+                          ))
+                        ) : (
+                          <li className="list-group-item text-muted">
+                            No invoices found
                           </li>
-                        ))
-                      ) : (
-                        <li className="list-group-item text-muted">
-                          No invoices found
-                        </li>
-                      )}
-                    </ul>
-                  )}
-                </div>
-              </div>
+                        )}
+                      </ul>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn btn-link btn-sm p-0 mt-1 text-danger"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setInvoiceSearch("");
+                      setSearchInvoiceNo("");
+                      setShowInvoiceResults(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+
             </div>
 
-            <div className="col-md-4">
+            {/* Invoice Date */}
+            <div className="col-md-3">
               <label className="form-label">Invoice Date</label>
               <input
                 type="text"
@@ -637,7 +666,8 @@ const Sales = () => {
               />
             </div>
 
-            <div className="col-md-4">
+            {/* Customer Name */}
+            <div className="col-md-3">
               <label className="form-label">Customer Name</label>
               <input
                 type="text"
@@ -648,6 +678,7 @@ const Sales = () => {
             </div>
 
           </div>
+
         </div>
 
         {/* Add Product */}
@@ -659,7 +690,7 @@ const Sales = () => {
 
           <div className="row g-3 align-items-end">
 
-            <div className="col-md-5">
+            <div className="col-md-5 position-relative">
               <label className="form-label">Select Product</label>
 
               <input
