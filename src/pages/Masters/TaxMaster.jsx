@@ -16,6 +16,7 @@ const TaxMaster = () => {
   const [userData, setUserData] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
+  const [showTaxModal, setShowTaxModal] = useState(false);
 
   const getAllTaxes = async () => {
     try {
@@ -123,6 +124,7 @@ const TaxMaster = () => {
       }
     }
 
+    setShowTaxModal(false);
     handleCancel();
   };
 
@@ -133,6 +135,7 @@ const TaxMaster = () => {
     setTaxName(tax.taxName);
     setTaxRate(String(tax.taxRate));
     setEditId(tax._id);
+    setShowTaxModal(true);
   };
 
   // Reset form
@@ -198,7 +201,7 @@ const TaxMaster = () => {
         </div>
 
         {/* Tax Form */}
-        <div className="tax-form-card">
+        {/* <div className="tax-form-card">
           <div className="tax-card-heading">
             <h5>
               {editId !== null ? "Edit Tax Details" : "Add Tax Details"}
@@ -279,7 +282,7 @@ const TaxMaster = () => {
 
             </div>
           </form>
-        </div>
+        </div> */}
 
         {/* Tax List */}
         <div className="tax-table-card">
@@ -290,14 +293,156 @@ const TaxMaster = () => {
               <p>{taxes.length} tax record(s) added</p>
             </div>
 
-            <div className="tax-search">
-              <i className="bi bi-search"></i>
-              <input
-                type="text"
-                placeholder="Search tax..."
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
+            {/* Tax Modal */}
+            {showTaxModal && (
+              <div
+                className="modal fade show d-block"
+                tabIndex="-1"
+                style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+              >
+                <div className="modal-dialog modal-dialog-centered">
+                  <div className="modal-content">
+
+                    {/* Modal Header */}
+                    <div className="modal-header">
+                      <div>
+                        <h5 className="modal-title">
+                          {editId !== null ? "Edit Tax Details" : "Add Tax Details"}
+                        </h5>
+                        <p className="text-muted small mb-0">
+                          Enter the tax information below
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="btn-close"
+                        onClick={() => {
+                          setShowTaxModal(false);
+                          handleCancel();
+                        }}
+                      ></button>
+                    </div>
+
+                    {/* Modal Body */}
+                    <form onSubmit={handleSubmit}>
+                      <div className="modal-body">
+
+                        {/* Tax ID */}
+                        <div className="mb-3">
+                          <label className="form-label">
+                            Tax ID <span className="required-star">*</span>
+                          </label>
+
+                          <input
+                            type="text"
+                            className="form-control group-code-input"
+                            value={
+                              editId !== null
+                                ? taxes.find((tax) => tax._id === editId)?.taxId || ""
+                                : nextTaxId
+                            }
+                            readOnly
+                          />
+                        </div>
+
+                        {/* Tax Name */}
+                        <div className="mb-3">
+                          <label className="form-label">
+                            Tax Name <span className="required-star">*</span>
+                          </label>
+
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter tax name"
+                            value={taxName}
+                            onChange={(e) => setTaxName(e.target.value)}
+                            maxLength={50}
+                            required
+                          />
+                        </div>
+
+                        {/* Tax Rate */}
+                        <div className="mb-3">
+                          <label className="form-label">
+                            Tax Rate (%) <span className="required-star">*</span>
+                          </label>
+
+                          <input
+                            type="number"
+                            className="form-control"
+                            placeholder="0.00"
+                            value={taxRate}
+                            onChange={(e) => setTaxRate(e.target.value)}
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            required
+                          />
+                        </div>
+
+                      </div>
+
+                      {/* Modal Footer */}
+                      <div className="modal-footer">
+
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => {
+                            setShowTaxModal(false);
+                            handleCancel();
+                          }}
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          type="submit"
+                          className={`btn ${editId !== null ? "btn-warning" : "btn-success"
+                            }`}
+                        >
+                          <i
+                            className={`bi ${editId !== null ? "bi-check-lg" : "bi-plus-lg"
+                              } me-2`}
+                          ></i>
+
+                          {editId !== null ? "Update Tax" : "Save Tax"}
+                        </button>
+
+                      </div>
+                    </form>
+
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="d-flex justify-content-between align-items-center gap-3 mb-4">
+              <div>
+                {/* Add Tax Button */}
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() => {
+                    handleCancel();
+                    setShowTaxModal(true);
+                  }}
+                >
+                  <i className="bi bi-plus-lg me-2"></i>
+                  Add Tax
+                </button>
+              </div>
+              <div className="tax-search">
+                <i className="bi bi-search"></i>
+                <input
+                  type="text"
+                  placeholder="Search tax..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
